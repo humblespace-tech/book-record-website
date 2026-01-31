@@ -36,18 +36,8 @@ export default function Home() {
 
         <div className={styles.grid}>
           <div className={styles.card}>
-            <h3>Add Books</h3>
-                    <p>Record new books with details like title, author, ISBN</p>
-          </div>
-
-          <div className={styles.card}>
             <h3>Search & Filter</h3>
                     <p>Find books by title, author, or genre</p>
-          </div>
-
-          <div className={styles.card}>
-            <h3>Rating System</h3>
-                    <p>Rate and review your favorite reads</p>
           </div>
 
           <div className={styles.card}>

@@ -41,10 +41,19 @@ export default function AddBook() {
 
   const fetchBooks = async () => {
         try {
-                const res = await fetch('/api/books')
-                const data = await res.json()
-                setBooks(data)
-                setShowBooks(true)
+                            const res = await fetch('/api/books')
+                        if (!res.ok) {
+                                            const errorData = await res.json()
+                                            setMessage(errorData.error || 'Failed to load books')
+                                            return
+                        }
+                        const data = await res.json()
+                        if (Array.isArray(data)) {
+                                            setBooks(data)
+                                            setShowBooks(true)
+                        } else {
+                                            setMessage('Unexpected response from server')
+                        }
         } catch (err) {
                 setMessage('Failed to load books')
         }

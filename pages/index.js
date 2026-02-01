@@ -1,4 +1,4 @@
-★☆©import Head from 'next/head'
+import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import styles from '../styles/styles/Home.module.css'
@@ -20,18 +20,18 @@ export default function Home() {
   return (
               <div className={styles.container}>
       <Head>
-                  <title>Book Record Website</title>
+                  <title>humblespace</title>
                 <meta name="description" content="Manage your book collection" />
                   <link rel="icon" href="/favicon.ico" />
           </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to Book Record Website
+          humblespace
           </h1>
 
         <p className={styles.description}>
-          Your personal library management system with MongoDB
+          Your personal library management system
           </p>
 
         <div className={styles.grid}>
@@ -77,7 +77,7 @@ export default function Home() {
                 </main>
 
       <footer className={styles.footer}>
-        <p>Book Record Website © 2024</p>
+        <p>humblespace © 2025</p>
                 </footer>
                 </div>
           )

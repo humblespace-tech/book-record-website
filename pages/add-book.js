@@ -6,6 +6,7 @@ export default function AddBook() {
     const [form, setForm] = useState({
           title: '', author: '', isbn: '', genre: '', rating: '', notes: ''
     })
+
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [books, setBooks] = useState([])

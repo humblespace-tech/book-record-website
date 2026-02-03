@@ -4,86 +4,242 @@ import { useState, useEffect } from 'react'
 import styles from '../styles/styles/Home.module.css'
 
 export default function Home() {
-    const [books, setBooks] = useState([])
-    const [loading, setLoading] = useState(true)
+        const [books, setBooks] = useState([])
+        const [loading, setLoading] = useState(true)
+        const [editingBook, setEditingBook] = useState(null)
+        const [editForm, setEditForm] = useState({
+                    title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: ''
+        })
+        const [editMessage, setEditMessage] = useState('')
 
-  useEffect(() => {
-        fetch('/api/books')
-          .then(res => res.json())
-          .then(data => {
-                    setBooks(data)
-                    setLoading(false)
-          })
-          .catch(() => setLoading(false))
-  }, [])
+    const fetchBooks = () => {
+                fetch('/api/books')
+                    .then(res => res.json())
+                    .then(data => {
+                                        setBooks(data)
+                                        setLoading(false)
+                    })
+                    .catch(() => setLoading(false))
+    }
 
-  return (
-        <div className={styles.container}>
-      <Head>
-            <title>humblespace</title>
-          <meta name="description" content="Manage your book collection" />
-            <link rel="icon" href="/favicon.ico" />
-            <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
-    </Head>
+    useEffect(() => {
+                fetchBooks()
+    }, [])
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          humblespace
-    </h1>
+    const deleteBook = async (id, title) => {
+                if (!confirm(`Are you sure you want to delete "${title}"?`)) return
+                try {
+                                const res = await fetch('/api/books?id=' + id, { method: 'DELETE' })
+                                if (res.ok) {
+                                                    setBooks(books.filter(b => b._id !== id))
+                                }
+                } catch (err) {
+                                alert('Failed to delete book')
+                }
+    }
 
-        <p className={styles.description}>
-          Your personal library management system
-    </p>
+    const openEditModal = (book) => {
+                setEditingBook(book)
+                setEditForm({
+                                title: book.title || '',
+                                author: book.author || '',
+                                isbn: book.isbn || '',
+                                genre: book.genre || '',
+                                rating: book.rating ? String(book.rating) : '',
+                                notes: book.notes || '',
+                                pages: book.pages ? String(book.pages) : '',
+                                coverUrl: book.coverUrl || ''
+                })
+                setEditMessage('')
+    }
 
-        <div className={styles.grid}>
-          <Link href="/search" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className={styles.card} style={{ cursor: 'pointer' }}>
-              <h3>Search & Filter</h3>
-              <p>Find books by title, author, or genre</p>
-  </div>
-  </Link>
+    const closeEditModal = () => {
+                setEditingBook(null)
+                setEditMessage('')
+    }
 
-          <Link href="/statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className={styles.card} style={{ cursor: 'pointer' }}>
-              <h3>Statistics</h3>
-              <p>View your reading habits and collection stats</p>
-  </div>
-  </Link>
-  </div>
+    const handleEditChange = (e) => {
+                setEditForm({ ...editForm, [e.target.name]: e.target.value })
+    }
 
-        <Link href="/add-book">
-            <button className={styles.addBookBtn}>+ Add a Book</button>
-  </Link>
+    const handleEditSubmit = async (e) => {
+                e.preventDefault()
+                setEditMessage('')
+                try {
+                                const res = await fetch('/api/books?id=' + editingBook._id, {
+                                                    method: 'PUT',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify(editForm),
+                                })
+                                if (res.ok) {
+                                                    setEditMessage('Book updated successfully!')
+                                                    fetchBooks()
+                                                    setTimeout(() => closeEditModal(), 1000)
+                                } else {
+                                                    const data = await res.json()
+                                                    setEditMessage(data.error || 'Failed to update book')
+                                }
+                } catch (err) {
+                                setEditMessage('Something went wrong')
+                }
+    }
 
-        <section className={styles.collectionSection}>
-          <h2 className={styles.collectionTitle}>My Book Collection</h2>
+    return (
+                <div className={styles.container}>
+            <Head>
+                        <title>humblespace</title>
+                    <meta name="description" content="Manage your book collection" />
+                        <link rel="icon" href="/favicon.ico" />
+                        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
+        </Head>
+
+            <main className={styles.main}>
+                <h1 className={styles.title}>
+                    humblespace
+                        </h1>
+                <p className={styles.description}>
+                    Your personal library management system
+                        </p>
+
+                <div className={styles.grid}>
+                    <Link href="/search" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <div className={styles.card} style={{ cursor: 'pointer' }}>
+                            <h3>Search & Filter</h3>
+                            <p>Find books by title, author, or genre</p>
+                        </div>
+                        </Link>
+                    <Link href="/statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <div className={styles.card} style={{ cursor: 'pointer' }}>
+                            <h3>Statistics</h3>
+                            <p>View your reading habits and collection stats</p>
+                        </div>
+                        </Link>
+                        </div>
+
+                <Link href="/add-book">
+                                            <button className={styles.addBookBtn}>+ Add a Book</button>
+                        </Link>
+
+                <section className={styles.collectionSection}>
+                    <h2 className={styles.collectionTitle}>My Book Collection</h2>
 {loading ? (
-              <p className={styles.loadingText}>Loading books...</p>
-            ) : books.length === 0 ? (
-              <p className={styles.loadingText}>No books yet. Add your first book!</p>
-           ) : (
-                         <div className={styles.bookGrid}>
-             {books.map((book) => (
-                             <div key={book._id} className={styles.bookCard}>
-                  <h3 className={styles.bookTitle}>{book.title}</h3>
-                   <p className={styles.bookAuthor}>by {book.author}</p>
- {book.genre && <span className={styles.bookGenre}>{book.genre}</span>}
-  {book.rating > 0 && (
-                        <p className={styles.bookRating}>
-  {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}
-  </p>
+                            <p className={styles.loadingText}>Loading books...</p>
+                        ) : books.length === 0 ? (
+                            <p className={styles.loadingText}>No books yet. Add your first book!</p>
+                     ) : (
+                                                 <div className={styles.bookGrid}>
+                         {books.map((book) => (
+                                                         <div key={book._id} className={styles.bookCard}>
+                     {book.coverUrl && (
+                                                                 <div className={styles.bookCover}>
+                                            <img src={book.coverUrl} alt={book.title + ' cover'} className={styles.coverImage} />
+    </div>
+                                    )}
+{!book.coverUrl && (
+                                            <div className={styles.bookCoverPlaceholder}>
+                                            <span className={styles.coverPlaceholderIcon}>📖</span>
+    </div>
+                                     )}
+                                    <h3 className={styles.bookTitle}>{book.title}</h3>
+                                    <p className={styles.bookAuthor}>by {book.author}</p>
+{book.genre && <span className={styles.bookGenre}>{book.genre}</span>}
+ {book.rating > 0 && (
+                                             <p className={styles.bookRating}>
+ {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}
+ </p>
+                                     )}
+{book.notes && <p className={styles.bookNotes}>{book.notes}</p>}
+                                     <div className={styles.bookActions}>
+                                        <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
+                                        <button onClick={() => deleteBook(book._id, book.title)} className={styles.deleteBtn}>Delete</button>
+    </div>
+    </div>
+                            ))}
+                                </div>
                     )}
- {book.notes && <p className={styles.bookNotes}>{book.notes}</p>}
-   </div>
-                ))}
- </div>
-           )}
 </section>
-  </main>
+                        </main>
 
-      <footer className={styles.footer}>
-        <p>humblespace © 2025</p>
-  </footer>
-  </div>
-  )
+{editingBook && (
+                    <div className={styles.modalOverlay} onClick={closeEditModal}>
+                        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.modalHeader}>
+                            <h2 className={styles.modalTitle}>Edit Book</h2>
+                            <button onClick={closeEditModal} className={styles.modalClose}>&times;</button>
+    </div>
+{editMessage && (
+                                <p className={styles.editMessage} style={{
+                                    background: editMessage.includes('success') ? 'rgba(166,124,91,0.15)' : 'rgba(180,80,80,0.15)',
+                                    borderColor: editMessage.includes('success') ? '#a67c5b' : '#b45050'
+}}>{editMessage}</p>
+                        )}
+                        <form onSubmit={handleEditSubmit} className={styles.editForm}>
+                            <div className={styles.editRow}>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>Title *</label>
+                                    <input name="title" value={editForm.title} onChange={handleEditChange} required className={styles.editInput} />
+                            </div>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>Author *</label>
+                                    <input name="author" value={editForm.author} onChange={handleEditChange} required className={styles.editInput} />
+                            </div>
+                            </div>
+                            <div className={styles.editRow}>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>ISBN</label>
+                                    <input name="isbn" value={editForm.isbn} onChange={handleEditChange} className={styles.editInput} />
+                            </div>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>Genre</label>
+                                    <select name="genre" value={editForm.genre} onChange={handleEditChange} className={styles.editInput}>
+                                        <option value="">Select genre</option>
+                                        <option value="Fiction">Fiction</option>
+                                        <option value="Non-Fiction">Non-Fiction</option>
+                                        <option value="Science">Science</option>
+                                        <option value="History">History</option>
+                                        <option value="Fantasy">Fantasy</option>
+                                        <option value="Mystery">Mystery</option>
+                                        <option value="Other">Other</option>
+                            </select>
+                            </div>
+                            </div>
+                            <div className={styles.editRow}>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>Rating (1-5)</label>
+                                    <select name="rating" value={editForm.rating} onChange={handleEditChange} className={styles.editInput}>
+                                        <option value="">No rating</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                            </select>
+                            </div>
+                                <div className={styles.editField}>
+                                    <label className={styles.editLabel}>Pages</label>
+                                    <input name="pages" type="number" value={editForm.pages} onChange={handleEditChange} className={styles.editInput} min="0" />
+                            </div>
+                            </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Cover Image URL</label>
+                                <input name="coverUrl" value={editForm.coverUrl} onChange={handleEditChange} className={styles.editInput} placeholder="https://example.com/cover.jpg" />
+                            </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Notes</label>
+                                <textarea name="notes" value={editForm.notes} onChange={handleEditChange} className={styles.editInput} style={{ minHeight: '70px' }} />
+                            </div>
+                            <div className={styles.editFormButtons}>
+                                <button type="button" onClick={closeEditModal} className={styles.cancelBtn}>Cancel</button>
+                                <button type="submit" className={styles.saveBtn}>Save Changes</button>
+                            </div>
+                            </form>
+                            </div>
+                            </div>
+            )}
+
+            <footer className={styles.footer}>
+                <p>humblespace &copy; 2025</p>
+                </footer>
+                </div>
+    )
 }

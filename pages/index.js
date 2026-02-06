@@ -8,7 +8,7 @@ export default function Home() {
         const [loading, setLoading] = useState(true)
         const [editingBook, setEditingBook] = useState(null)
         const [editForm, setEditForm] = useState({
-                    title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: ''
+                    title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: ''
         })
         const [editMessage, setEditMessage] = useState('')
 
@@ -48,7 +48,8 @@ export default function Home() {
                                 rating: book.rating ? String(book.rating) : '',
                                 notes: book.notes || '',
                                 pages: book.pages ? String(book.pages) : '',
-                                coverUrl: book.coverUrl || ''
+                                coverUrl: book.coverUrl || '',
+                                dateFinished: book.dateFinished || ''
                 })
                 setEditMessage('')
     }
@@ -148,6 +149,7 @@ export default function Home() {
  {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}
  </p>
                                      )}
+{book.dateFinished && <p className={styles.bookDateFinished}>Finished: {new Date(book.dateFinished).toLocaleDateString()}</p>}
 {book.notes && <p className={styles.bookNotes}>{book.notes}</p>}
                                      <div className={styles.bookActions}>
                                         <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
@@ -223,6 +225,10 @@ export default function Home() {
                             <div className={styles.editField}>
                                 <label className={styles.editLabel}>Cover Image URL</label>
                                 <input name="coverUrl" value={editForm.coverUrl} onChange={handleEditChange} className={styles.editInput} placeholder="https://example.com/cover.jpg" />
+                            </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Date Finished</label>
+                                <input name="dateFinished" type="date" value={editForm.dateFinished} onChange={handleEditChange} className={styles.editInput} />
                             </div>
                             <div className={styles.editField}>
                                 <label className={styles.editLabel}>Notes</label>

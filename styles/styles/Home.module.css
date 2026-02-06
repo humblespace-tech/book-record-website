@@ -203,6 +203,12 @@
     color: #c49a6c;
 }
 
+.bookDateFinished {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: #7a6654;
+}
+
 .bookNotes {
     margin: 0.5rem 0 0 0;
     font-size: 0.9rem;

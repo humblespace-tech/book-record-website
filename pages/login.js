@@ -46,7 +46,7 @@ export default function Login() {
         <title>Admin Login - humblespace</title>
       </Head>
       <main style={s.main}>
-        <Link href="/" style={s.backLink}>Back to Home</Link>
+        <Link href="/" style={s.backBtn}>Back to Library</Link>
         <h1 style={s.title}>Admin Login</h1>
         <p style={s.subtitle}>Enter your password to manage the library</p>
 
@@ -94,12 +94,25 @@ const s = {
     width: '100%',
     color: '#5D4E37',
   },
-  backLink: {
-    color: '#D4774E',
+  backBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.7rem 1.8rem',
+    background: '#5D4E37',
+    color: '#FFFDF7',
+    border: '2px solid #5D4E37',
+    borderRadius: '30px',
     textDecoration: 'none',
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     fontFamily: "'Merriweather', Georgia, serif",
-    fontWeight: '600',
+    fontWeight: '400',
+    letterSpacing: '0.5px',
+    cursor: 'pointer',
+    transition: 'all 0.4s ease',
+    boxShadow: '0 3px 10px rgba(93, 78, 55, 0.1)',
+    position: 'relative',
+    overflow: 'hidden',
   },
   title: {
     fontSize: '2.5rem',
@@ -134,11 +147,11 @@ const s = {
     fontFamily: "'Lora', Georgia, serif",
   },
   form: {
-    background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.15) 100%)',
+    background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.3) 100%)',
     padding: '2rem',
     borderRadius: '20px',
-    border: '2px solid #F4D9C6',
-    boxShadow: '0 10px 30px rgba(93, 78, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+    border: '3px solid #F4D9C6',
+    boxShadow: '0 10px 30px rgba(93, 78, 55, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
   },
   field: {
     marginBottom: '1.2rem',
@@ -167,15 +180,16 @@ const s = {
   button: {
     width: '100%',
     padding: '1rem',
-    borderRadius: '25px',
+    borderRadius: '30px',
     border: 'none',
     background: '#D4774E',
     color: '#FFFDF7',
     fontSize: '1.1rem',
-    fontWeight: '700',
+    fontWeight: '600',
     cursor: 'pointer',
     boxShadow: '0 4px 15px rgba(212, 119, 78, 0.3)',
     fontFamily: "'Merriweather', Georgia, serif",
     transition: 'all 0.3s ease',
+    letterSpacing: '0.5px',
   },
 }

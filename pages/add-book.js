@@ -32,7 +32,7 @@ export default function AddBook() {
                                       const data = await res.json()
                                       if (data.coverUrl) {
                                                     setForm(prev => ({ ...prev, coverUrl: data.coverUrl }))
-                                                    setMessage(`✨ Cover found! (${data.source})`)
+                                                    setMessage(`Cover found! (${data.source})`)
                                       } else {
                                                     setForm(prev => ({ ...prev, coverUrl: '' }))
                                                     setMessage('')
@@ -60,7 +60,7 @@ export default function AddBook() {
                 })
                 const data = await res.json()
                 if (res.ok) {
-                          setMessage('✅ Book added successfully!')
+                          setMessage('Book added successfully!')
                           setForm({ title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '' })
                           if (showBooks) fetchBooks()
                 } else {
@@ -105,12 +105,11 @@ export default function AddBook() {
         <div style={styles.container}>
       <Head>
             <title>Add Book - humblespace</title>
-          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
     </Head>
         <main style={styles.main}>
         <Link href="/" style={styles.backLink}>Back to Home</Link>
           <h1 style={styles.title}>Add a New Book</h1>
-  {message && <p style={{...styles.message, background: message.includes('✅') ? 'rgba(166,124,91,0.15)' : message.includes('✨') ? 'rgba(100,150,200,0.15)' : 'rgba(180,80,80,0.15)', borderColor: message.includes('✅') ? '#a67c5b' : message.includes('✨') ? '#6496c8' : '#b45050'}}>{message}</p>}
+  {message && <p style={{...styles.message, background: message.includes('successfully') ? 'rgba(168,181,160,0.2)' : message.includes('found') ? 'rgba(201,169,97,0.15)' : 'rgba(180,80,80,0.15)', borderColor: message.includes('successfully') ? '#A8B5A0' : message.includes('found') ? '#C9A961' : '#b45050'}}>{message}</p>}
           <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.row}>
             <div style={styles.field}>
@@ -166,21 +165,21 @@ export default function AddBook() {
   </div>
           <div style={styles.field}>
             <label style={styles.label}>Notes</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange} style={{...styles.input, minHeight: '80px'}} placeholder="Your notes" />
+            <textarea name="notes" value={form.notes} onChange={handleChange} style={{...styles.input, minHeight: '100px'}} placeholder="Your notes" />
   </div>
 {form.coverUrl && (
-              <div style={{...styles.field, marginTop: '1rem', textAlign: 'center', paddingTop: '1rem', borderTop: '1px solid rgba(193,170,145,0.2)'}}>
-              <label style={styles.label}>✨ Cover Found!</label>
-              <img src={form.coverUrl} alt="Book cover" style={{maxWidth: '120px', height: 'auto', borderRadius: '8px', marginTop: '0.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.15)'}} />
-              <div style={{fontSize: '0.75rem', color: '#999', marginTop: '0.5rem', wordBreak: 'break-all'}}>URL: {form.coverUrl}</div>
+              <div style={styles.coverPreview}>
+              <label style={styles.label}>Cover Found!</label>
+              <img src={form.coverUrl} alt="Book cover" style={styles.coverPreviewImg} />
+              <div style={{fontSize: '0.75rem', color: '#8B7E66', marginTop: '0.5rem', wordBreak: 'break-all', fontFamily: "'Lora', Georgia, serif"}}>URL: {form.coverUrl}</div>
   </div>
           )}
 {fetchingCover && (
-              <div style={{...styles.field, marginTop: '1rem', textAlign: 'center', color: '#6496c8', fontSize: '0.9rem'}}>
-              🔍 Searching for cover...
+              <div style={styles.coverSearching}>
+              Searching for cover...
                 </div>
           )}
-          <button type="submit" disabled={loading} style={styles.button}>{loading ? 'Adding...' : 'Add Book'}</button>
+          <button type="submit" disabled={loading} style={{...styles.button, opacity: loading ? 0.7 : 1}}>{loading ? 'Adding...' : 'Add Book'}</button>
             </form>
         <div style={styles.divider} />
         <button onClick={fetchBooks} style={styles.secondaryButton}>{showBooks ? 'Refresh' : 'View My Books'}</button>
@@ -215,31 +214,208 @@ export default function AddBook() {
 }
 
 const styles = {
-    container: { minHeight: '100vh', background: 'linear-gradient(160deg, #faf6f1 0%, #f0e6d8 40%, #e8ddd0 100%)', padding: '2rem' },
-    main: { maxWidth: '800px', margin: '0 auto', color: '#3d2c1e' },
-    backLink: { color: '#7a6654', textDecoration: 'none', fontSize: '0.9rem' },
-    title: { fontSize: '2.5rem', margin: '1rem 0', color: '#3d2c1e', fontWeight: '300', fontFamily: "'Playfair Display', Georgia, serif" },
-    subtitle: { fontSize: '1.5rem', margin: '1rem 0', color: '#3d2c1e', fontWeight: '300' },
-    message: { padding: '1rem', borderRadius: '8px', border: '1px solid', marginBottom: '1rem', textAlign: 'center' },
-    form: { background: 'rgba(255,255,255,0.6)', padding: '2rem', borderRadius: '14px', border: '1px solid rgba(193,170,145,0.3)' },
-    row: { display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' },
-    field: { flex: '1', minWidth: '200px', marginBottom: '0.5rem' },
-    label: { display: 'block', marginBottom: '0.3rem', fontSize: '0.9rem', fontWeight: '600', color: '#3d2c1e' },
-    input: { width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(193,170,145,0.4)', background: 'rgba(255,255,255,0.7)', color: '#3d2c1e', fontSize: '1rem', boxSizing: 'border-box' },
-    button: { width: '100%', padding: '0.9rem', borderRadius: '50px', border: 'none', background: '#a67c5b', color: 'white', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', marginTop: '0.5rem', boxShadow: '0 4px 15px rgba(166,124,91,0.25)' },
-    secondaryButton: { padding: '0.8rem 2rem', borderRadius: '50px', border: '1px solid rgba(193,170,145,0.5)', background: 'transparent', color: '#3d2c1e', fontSize: '1rem', cursor: 'pointer', fontWeight: '600' },
-    divider: { borderTop: '1px solid rgba(193,170,145,0.3)', margin: '2rem 0' },
+    container: {
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, #FFFDF7 0%, #F5EBE0 50%, #F0E4D6 100%)',
+        padding: '2rem',
+        position: 'relative',
+    },
+    main: { maxWidth: '800px', margin: '0 auto', color: '#5D4E37', position: 'relative', zIndex: 1 },
+    backLink: {
+        color: '#D4774E',
+        textDecoration: 'none',
+        fontSize: '0.9rem',
+        fontFamily: "'Merriweather', Georgia, serif",
+        fontWeight: '600',
+        transition: 'color 0.3s ease',
+    },
+    title: {
+        fontSize: '2.8rem',
+        margin: '1rem 0 1.5rem',
+        color: '#3E2723',
+        fontWeight: '700',
+        fontFamily: "'Playfair Display', Georgia, serif",
+        letterSpacing: '-0.5px',
+    },
+    subtitle: {
+        fontSize: '1.8rem',
+        margin: '1.5rem 0 1rem',
+        color: '#3E2723',
+        fontWeight: '700',
+        fontFamily: "'Playfair Display', Georgia, serif",
+    },
+    message: {
+        padding: '1rem',
+        borderRadius: '12px',
+        border: '2px solid',
+        marginBottom: '1.5rem',
+        textAlign: 'center',
+        fontFamily: "'Lora', Georgia, serif",
+        fontSize: '0.95rem',
+    },
+    form: {
+        background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.15) 100%)',
+        padding: '2rem',
+        borderRadius: '20px',
+        border: '2px solid #F4D9C6',
+        boxShadow: '0 10px 30px rgba(93, 78, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+    },
+    row: { display: 'flex', gap: '1rem', marginBottom: '0.5rem', flexWrap: 'wrap' },
+    field: { flex: '1', minWidth: '200px', marginBottom: '0.75rem' },
+    label: {
+        display: 'block',
+        marginBottom: '0.4rem',
+        fontSize: '0.82rem',
+        fontWeight: '600',
+        color: '#5D4E37',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        fontFamily: "'Merriweather', Georgia, serif",
+    },
+    input: {
+        width: '100%',
+        padding: '0.7rem 0.9rem',
+        borderRadius: '12px',
+        border: '2px solid #F4D9C6',
+        background: 'rgba(255, 253, 247, 0.8)',
+        color: '#3E2723',
+        fontSize: '0.95rem',
+        boxSizing: 'border-box',
+        fontFamily: "'Lora', Georgia, serif",
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+    },
+    button: {
+        width: '100%',
+        padding: '1rem',
+        borderRadius: '25px',
+        border: 'none',
+        background: '#D4774E',
+        color: '#FFFDF7',
+        fontSize: '1.1rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        marginTop: '0.5rem',
+        boxShadow: '0 4px 15px rgba(212, 119, 78, 0.3)',
+        fontFamily: "'Merriweather', Georgia, serif",
+        transition: 'all 0.3s ease',
+    },
+    secondaryButton: {
+        padding: '0.85rem 2rem',
+        borderRadius: '25px',
+        border: '2px solid #3E2723',
+        background: 'transparent',
+        color: '#3E2723',
+        fontSize: '1rem',
+        cursor: 'pointer',
+        fontWeight: '600',
+        fontFamily: "'Merriweather', Georgia, serif",
+        transition: 'all 0.3s ease',
+    },
+    divider: {
+        borderTop: '3px solid transparent',
+        borderImage: 'linear-gradient(90deg, transparent, #F4D9C6, #D4774E, #F4D9C6, transparent) 1',
+        margin: '2.5rem 0',
+    },
+    coverPreview: {
+        marginTop: '1rem',
+        textAlign: 'center',
+        paddingTop: '1rem',
+        borderTop: '2px solid #F4D9C6',
+    },
+    coverPreviewImg: {
+        maxWidth: '120px',
+        height: 'auto',
+        borderRadius: '12px',
+        marginTop: '0.5rem',
+        boxShadow: '0 4px 15px rgba(62, 39, 35, 0.15)',
+    },
+    coverSearching: {
+        marginTop: '1rem',
+        textAlign: 'center',
+        color: '#C9A961',
+        fontSize: '0.9rem',
+        fontFamily: "'Lora', Georgia, serif",
+        fontStyle: 'italic',
+    },
     bookList: { marginTop: '1rem' },
-    bookCard: { background: 'rgba(255,255,255,0.6)', borderRadius: '14px', padding: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'flex-start', border: '1px solid rgba(193,170,145,0.3)', gap: '1rem' },
-    bookCoverWrap: { width: '80px', minHeight: '110px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: 'rgba(166,124,91,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
-    coverImg: { width: '100%', height: 'auto', display: 'block', borderRadius: '8px' },
+    bookCard: {
+        background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.15) 100%)',
+        borderRadius: '15px',
+        padding: '1.2rem',
+        marginBottom: '1rem',
+        display: 'flex',
+        alignItems: 'flex-start',
+        border: '2px solid #F4D9C6',
+        gap: '1rem',
+        boxShadow: '0 8px 25px rgba(93, 78, 55, 0.06)',
+        transition: 'all 0.3s ease',
+    },
+    bookCoverWrap: {
+        width: '80px',
+        minHeight: '110px',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        flexShrink: 0,
+        background: 'linear-gradient(135deg, #D4774E 0%, #3E2723 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 12px rgba(62, 39, 35, 0.15)',
+    },
+    coverImg: { width: '100%', height: 'auto', display: 'block' },
     bookInfo: { flex: 1, minWidth: 0 },
     badgeRow: { display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center', marginTop: '0.3rem' },
-    bookTitle: { margin: '0 0 0.3rem 0', fontSize: '1.2rem', color: '#3d2c1e' },
-    bookAuthor: { margin: '0 0 0.3rem 0', color: '#7a6654', fontSize: '0.95rem', fontStyle: 'italic' },
-    badge: { display: 'inline-block', background: 'rgba(166,124,91,0.15)', padding: '0.2rem 0.7rem', borderRadius: '20px', fontSize: '0.8rem', color: '#7a6654' },
-    rating: { fontSize: '0.95rem', color: '#c49a6c', letterSpacing: '1px' },
-    bookNotes: { margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#8a7564', fontStyle: 'italic' },
-    deleteBtn: { background: 'rgba(180,80,80,0.15)', border: '1px solid #b45050', color: '#b45050', padding: '0.4rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', flexShrink: 0 },
-    empty: { textAlign: 'center', color: '#7a6654', padding: '2rem' },
+    bookTitle: {
+        margin: '0 0 0.3rem 0',
+        fontSize: '1.2rem',
+        color: '#3E2723',
+        fontWeight: '700',
+        fontFamily: "'Playfair Display', Georgia, serif",
+    },
+    bookAuthor: {
+        margin: '0 0 0.3rem 0',
+        color: '#8B7E66',
+        fontSize: '0.9rem',
+        fontStyle: 'italic',
+        fontFamily: "'Lora', Georgia, serif",
+    },
+    badge: {
+        display: 'inline-block',
+        background: 'rgba(212, 119, 78, 0.12)',
+        padding: '0.2rem 0.7rem',
+        borderRadius: '20px',
+        fontSize: '0.78rem',
+        color: '#D4774E',
+        fontWeight: '600',
+        fontFamily: "'Merriweather', Georgia, serif",
+    },
+    rating: { fontSize: '0.95rem', color: '#C9A961', letterSpacing: '2px' },
+    bookNotes: {
+        margin: '0.5rem 0 0',
+        fontSize: '0.88rem',
+        color: '#8B7E66',
+        fontStyle: 'italic',
+        fontFamily: "'Lora', Georgia, serif",
+        lineHeight: '1.5',
+    },
+    deleteBtn: {
+        background: 'transparent',
+        border: '2px solid #b45050',
+        color: '#b45050',
+        padding: '0.45rem 1rem',
+        borderRadius: '25px',
+        cursor: 'pointer',
+        fontSize: '0.82rem',
+        flexShrink: 0,
+        fontWeight: '600',
+        fontFamily: "'Merriweather', Georgia, serif",
+        transition: 'all 0.3s ease',
+    },
+    empty: {
+        textAlign: 'center',
+        color: '#8B7E66',
+        padding: '2rem',
+        fontFamily: "'Lora', Georgia, serif",
+        fontStyle: 'italic',
+    },
 }

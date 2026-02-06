@@ -91,7 +91,6 @@ export default function Home() {
                         <title>humblespace</title>
                     <meta name="description" content="Manage your book collection" />
                         <link rel="icon" href="/favicon.ico" />
-                        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
         </Head>
 
             <main className={styles.main}>
@@ -141,6 +140,7 @@ export default function Home() {
                                             <span className={styles.coverPlaceholderIcon}>📖</span>
     </div>
                                      )}
+                                    <div className={styles.bookCardContent}>
                                     <h3 className={styles.bookTitle}>{book.title}</h3>
                                     <p className={styles.bookAuthor}>by {book.author}</p>
 {book.genre && <span className={styles.bookGenre}>{book.genre}</span>}
@@ -154,6 +154,7 @@ export default function Home() {
                                      <div className={styles.bookActions}>
                                         <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
                                         <button onClick={() => deleteBook(book._id, book.title)} className={styles.deleteBtn}>Delete</button>
+    </div>
     </div>
     </div>
                             ))}
@@ -171,8 +172,8 @@ export default function Home() {
     </div>
 {editMessage && (
                                 <p className={styles.editMessage} style={{
-                                    background: editMessage.includes('success') ? 'rgba(166,124,91,0.15)' : 'rgba(180,80,80,0.15)',
-                                    borderColor: editMessage.includes('success') ? '#a67c5b' : '#b45050'
+                                    background: editMessage.includes('success') ? 'rgba(168,181,160,0.2)' : 'rgba(180,80,80,0.15)',
+                                    borderColor: editMessage.includes('success') ? '#A8B5A0' : '#b45050'
 }}>{editMessage}</p>
                         )}
                         <form onSubmit={handleEditSubmit} className={styles.editForm}>

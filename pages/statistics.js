@@ -103,13 +103,13 @@ export default function Statistics() {
               const maxVal = Math.max(...monthlyData.map(d => d[1]), 1)
 
                       // Background
-                      ctx.fillStyle = 'rgba(255,255,255,0.6)'
+                      ctx.fillStyle = 'rgba(255,253,247,0.8)'
               ctx.beginPath()
-              ctx.roundRect(0, 0, w, h, 14)
+              ctx.roundRect(0, 0, w, h, 15)
               ctx.fill()
 
                       // Grid lines
-                      ctx.strokeStyle = 'rgba(193,170,145,0.3)'
+                      ctx.strokeStyle = 'rgba(244,217,198,0.5)'
               ctx.lineWidth = 1
               const gridLines = 4
               for (let i = 0; i <= gridLines; i++) {
@@ -119,15 +119,15 @@ export default function Statistics() {
                             ctx.lineTo(w - pad.right, y)
                             ctx.stroke()
                             // Y labels
-                  ctx.fillStyle = '#7a6654'
-                            ctx.font = '12px sans-serif'
+                  ctx.fillStyle = '#8B7E66'
+                            ctx.font = "12px 'Lora', Georgia, serif"
                             ctx.textAlign = 'right'
                             ctx.fillText(Math.round(maxVal - (maxVal / gridLines) * i), pad.left - 8, y + 4)
               }
 
                       // X labels
-                      ctx.fillStyle = '#7a6654'
-              ctx.font = '11px sans-serif'
+                      ctx.fillStyle = '#8B7E66'
+              ctx.font = "11px 'Merriweather', Georgia, serif"
               ctx.textAlign = 'center'
               const step = Math.max(1, Math.floor(monthlyData.length / 6))
               monthlyData.forEach((d, i) => {
@@ -139,23 +139,9 @@ export default function Statistics() {
                             }
               })
 
-                      // Line
-                      ctx.strokeStyle = '#a67c5b'
-              ctx.lineWidth = 2.5
-              ctx.lineJoin = 'round'
-              ctx.lineCap = 'round'
-              ctx.beginPath()
-              monthlyData.forEach((d, i) => {
-                            const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
-                            const y = pad.top + chartH - (d[1] / maxVal) * chartH
-                            if (i === 0) ctx.moveTo(x, y)
-                            else ctx.lineTo(x, y)
-              })
-              ctx.stroke()
-
                       // Area fill
-                      ctx.globalAlpha = 0.15
-              ctx.fillStyle = '#a67c5b'
+                      ctx.globalAlpha = 0.12
+              ctx.fillStyle = '#D4774E'
               ctx.beginPath()
               monthlyData.forEach((d, i) => {
                             const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
@@ -169,17 +155,31 @@ export default function Statistics() {
               ctx.fill()
               ctx.globalAlpha = 1
 
+                      // Line
+                      ctx.strokeStyle = '#D4774E'
+              ctx.lineWidth = 2.5
+              ctx.lineJoin = 'round'
+              ctx.lineCap = 'round'
+              ctx.beginPath()
+              monthlyData.forEach((d, i) => {
+                            const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
+                            const y = pad.top + chartH - (d[1] / maxVal) * chartH
+                            if (i === 0) ctx.moveTo(x, y)
+                            else ctx.lineTo(x, y)
+              })
+              ctx.stroke()
+
                       // Dots
                       monthlyData.forEach((d, i) => {
                                     const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
                                     const y = pad.top + chartH - (d[1] / maxVal) * chartH
-                                    ctx.fillStyle = '#a67c5b'
+                                    ctx.fillStyle = '#D4774E'
                                     ctx.beginPath()
-                                    ctx.arc(x, y, 4, 0, Math.PI * 2)
+                                    ctx.arc(x, y, 5, 0, Math.PI * 2)
                                     ctx.fill()
-                                    ctx.fillStyle = '#fff'
+                                    ctx.fillStyle = '#FFFDF7'
                                     ctx.beginPath()
-                                    ctx.arc(x, y, 2, 0, Math.PI * 2)
+                                    ctx.arc(x, y, 2.5, 0, Math.PI * 2)
                                     ctx.fill()
                       })
     }, [monthlyData])
@@ -188,7 +188,6 @@ export default function Statistics() {
               <div style={s.container}>
             <Head>
                       <title>Statistics - humblespace</title>
-                  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
       </Head>
               <main style={s.main}>
                 <Link href="/" style={s.backLink}>Back to Home</Link>
@@ -235,7 +234,7 @@ export default function Statistics() {
                                       const label = monthNames[parseInt(parts[1]) - 1] + ' ' + parts[0].slice(2)
                                       const opacity = count > 0 ? Math.min(0.3 + (count / Math.max(...monthlyData.map(d => d[1]))) * 0.7, 1) : 0.08
                                       return (
-                                                                                <div key={month} style={{...s.streakCell, background: `rgba(166,124,91,${opacity})`}}>
+                                                                                <div key={month} style={{...s.streakCell, background: `rgba(212,119,78,${opacity})`}}>
                                                              <span style={s.streakCount}>{count}</span>
                                                              <span style={s.streakMonth}>{label}</span>
                  </div>
@@ -251,23 +250,126 @@ export default function Statistics() {
 }
 
 const s = {
-      container: { minHeight: '100vh', background: 'linear-gradient(160deg, #faf6f1 0%, #f0e6d8 40%, #e8ddd0 100%)', padding: '2rem' },
-      main: { maxWidth: '900px', margin: '0 auto', color: '#3d2c1e' },
-      backLink: { color: '#7a6654', textDecoration: 'none', fontSize: '0.9rem' },
-      title: { fontSize: '2.5rem', margin: '1rem 0 0.3rem', color: '#3d2c1e', fontWeight: '300', fontFamily: "'Playfair Display', Georgia, serif" },
-      subtitle: { color: '#7a6654', fontSize: '1.1rem', margin: '0 0 2rem' },
-      loadingText: { textAlign: 'center', fontSize: '1.1rem', color: '#7a6654', marginTop: '3rem' },
-      statCards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2.5rem' },
-      statCard: { background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(193,170,145,0.3)', borderRadius: '14px', padding: '1.5rem', textAlign: 'center' },
-      statValue: { fontSize: '2.2rem', fontWeight: '600', color: '#3d2c1e', margin: '0 0 0.3rem', fontFamily: "'Playfair Display', Georgia, serif" },
-      statLabel: { fontSize: '0.85rem', color: '#7a6654', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' },
+      container: {
+          minHeight: '100vh',
+          background: 'linear-gradient(180deg, #FFFDF7 0%, #F5EBE0 50%, #F0E4D6 100%)',
+          padding: '2rem',
+          position: 'relative',
+      },
+      main: { maxWidth: '900px', margin: '0 auto', color: '#5D4E37', position: 'relative', zIndex: 1 },
+      backLink: {
+          color: '#D4774E',
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          fontFamily: "'Merriweather', Georgia, serif",
+          fontWeight: '600',
+      },
+      title: {
+          fontSize: '2.8rem',
+          margin: '1rem 0 0.3rem',
+          color: '#3E2723',
+          fontWeight: '700',
+          fontFamily: "'Playfair Display', Georgia, serif",
+          letterSpacing: '-0.5px',
+      },
+      subtitle: {
+          color: '#8B7E66',
+          fontSize: '1.1rem',
+          margin: '0 0 2rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      loadingText: {
+          textAlign: 'center',
+          fontSize: '1.1rem',
+          color: '#8B7E66',
+          marginTop: '3rem',
+          fontFamily: "'Lora', Georgia, serif",
+          fontStyle: 'italic',
+      },
+      statCards: {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1.2rem',
+          marginBottom: '2.5rem',
+      },
+      statCard: {
+          background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.2) 100%)',
+          border: '3px solid #F4D9C6',
+          borderRadius: '20px',
+          padding: '1.8rem 1.5rem',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(93, 78, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          position: 'relative',
+          overflow: 'hidden',
+      },
+      statValue: {
+          fontSize: '2.5rem',
+          fontWeight: '700',
+          color: '#3E2723',
+          margin: '0 0 0.3rem',
+          fontFamily: "'Playfair Display', Georgia, serif",
+      },
+      statLabel: {
+          fontSize: '0.78rem',
+          color: '#8B7E66',
+          margin: 0,
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          fontWeight: '600',
+          fontFamily: "'Merriweather', Georgia, serif",
+      },
       chartSection: { marginBottom: '2.5rem' },
-      chartTitle: { fontSize: '1.4rem', color: '#3d2c1e', fontWeight: '300', margin: '0 0 0.3rem' },
-      chartSubtitle: { color: '#7a6654', fontSize: '0.9rem', margin: '0 0 1rem' },
-      canvas: { width: '100%', height: '300px', display: 'block' },
+      chartTitle: {
+          fontSize: '1.6rem',
+          color: '#3E2723',
+          fontWeight: '700',
+          margin: '0 0 0.3rem',
+          fontFamily: "'Playfair Display', Georgia, serif",
+      },
+      chartSubtitle: {
+          color: '#8B7E66',
+          fontSize: '0.9rem',
+          margin: '0 0 1rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      canvas: {
+          width: '100%',
+          height: '300px',
+          display: 'block',
+          borderRadius: '15px',
+          border: '2px solid #F4D9C6',
+      },
       streakSection: { marginBottom: '2rem' },
-      streakGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.5rem', marginTop: '1rem' },
-      streakCell: { borderRadius: '10px', padding: '0.8rem 0.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' },
-      streakCount: { fontSize: '1.2rem', fontWeight: '600', color: '#3d2c1e' },
-      streakMonth: { fontSize: '0.7rem', color: '#7a6654', textTransform: 'uppercase' },
+      streakGrid: {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(85px, 1fr))',
+          gap: '0.6rem',
+          marginTop: '1rem',
+      },
+      streakCell: {
+          borderRadius: '12px',
+          padding: '0.8rem 0.5rem',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.2rem',
+          border: '2px solid rgba(244, 217, 198, 0.3)',
+          transition: 'all 0.3s ease',
+      },
+      streakCount: {
+          fontSize: '1.3rem',
+          fontWeight: '700',
+          color: '#3E2723',
+          fontFamily: "'Playfair Display', Georgia, serif",
+      },
+      streakMonth: {
+          fontSize: '0.68rem',
+          color: '#8B7E66',
+          textTransform: 'uppercase',
+          letterSpacing: '0.3px',
+          fontFamily: "'Merriweather', Georgia, serif",
+          fontWeight: '600',
+      },
 }

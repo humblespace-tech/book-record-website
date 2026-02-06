@@ -25,8 +25,8 @@ export default function Search() {
     const filtered = books
           .filter(book => {
                         const q = query.toLowerCase()
-                        const matchesQuery = !q || 
-                                          book.title.toLowerCase().includes(q) || 
+                        const matchesQuery = !q ||
+                                          book.title.toLowerCase().includes(q) ||
                                           book.author.toLowerCase().includes(q) ||
                                           (book.isbn && book.isbn.toLowerCase().includes(q)) ||
                                           (book.notes && book.notes.toLowerCase().includes(q))
@@ -56,7 +56,6 @@ export default function Search() {
               <div style={s.container}>
             <Head>
                       <title>Search - humblespace</title>
-                  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
       </Head>
               <main style={s.main}>
                 <Link href="/" style={s.backLink}>Back to Home</Link>
@@ -153,30 +152,174 @@ export default function Search() {
 }
 
 const s = {
-      container: { minHeight: '100vh', background: 'linear-gradient(160deg, #faf6f1 0%, #f0e6d8 40%, #e8ddd0 100%)', padding: '2rem' },
-      main: { maxWidth: '900px', margin: '0 auto', color: '#3d2c1e' },
-      backLink: { color: '#7a6654', textDecoration: 'none', fontSize: '0.9rem' },
-      title: { fontSize: '2.5rem', margin: '1rem 0 0.3rem', color: '#3d2c1e', fontWeight: '300', fontFamily: "'Playfair Display', Georgia, serif" },
-      subtitle: { color: '#7a6654', fontSize: '1.1rem', margin: '0 0 2rem' },
-      searchBar: { marginBottom: '1.2rem' },
-      searchInput: { width: '100%', padding: '0.9rem 1.2rem', borderRadius: '50px', border: '1px solid rgba(193,170,145,0.4)', background: 'rgba(255,255,255,0.7)', color: '#3d2c1e', fontSize: '1rem', boxSizing: 'border-box', outline: 'none' },
-      filters: { display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '1.5rem' },
+      container: {
+          minHeight: '100vh',
+          background: 'linear-gradient(180deg, #FFFDF7 0%, #F5EBE0 50%, #F0E4D6 100%)',
+          padding: '2rem',
+          position: 'relative',
+      },
+      main: { maxWidth: '900px', margin: '0 auto', color: '#5D4E37', position: 'relative', zIndex: 1 },
+      backLink: {
+          color: '#D4774E',
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          fontFamily: "'Merriweather', Georgia, serif",
+          fontWeight: '600',
+      },
+      title: {
+          fontSize: '2.8rem',
+          margin: '1rem 0 0.3rem',
+          color: '#3E2723',
+          fontWeight: '700',
+          fontFamily: "'Playfair Display', Georgia, serif",
+          letterSpacing: '-0.5px',
+      },
+      subtitle: {
+          color: '#8B7E66',
+          fontSize: '1.1rem',
+          margin: '0 0 2rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      searchBar: { marginBottom: '1.5rem' },
+      searchInput: {
+          width: '100%',
+          padding: '0.9rem 1.5rem',
+          borderRadius: '30px',
+          border: '2px solid #F4D9C6',
+          background: 'rgba(255, 253, 247, 0.8)',
+          color: '#3E2723',
+          fontSize: '1rem',
+          boxSizing: 'border-box',
+          outline: 'none',
+          fontFamily: "'Lora', Georgia, serif",
+          transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+      },
+      filters: {
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          alignItems: 'flex-end',
+          marginBottom: '1.5rem',
+      },
       filterItem: { display: 'flex', flexDirection: 'column', gap: '0.3rem' },
-      filterLabel: { fontSize: '0.75rem', color: '#7a6654', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' },
-      filterSelect: { padding: '0.55rem 0.8rem', borderRadius: '8px', border: '1px solid rgba(193,170,145,0.4)', background: 'rgba(255,255,255,0.7)', color: '#3d2c1e', fontSize: '0.9rem', cursor: 'pointer' },
-      clearBtn: { padding: '0.55rem 1.2rem', borderRadius: '50px', border: '1px solid rgba(193,170,145,0.5)', background: 'transparent', color: '#7a6654', fontSize: '0.85rem', cursor: 'pointer', fontWeight: '600', alignSelf: 'flex-end' },
-      resultCount: { fontSize: '0.9rem', color: '#7a6654', marginBottom: '1rem' },
-      loadingText: { textAlign: 'center', fontSize: '1.1rem', color: '#7a6654', marginTop: '3rem' },
-      emptyState: { textAlign: 'center', padding: '3rem', background: 'rgba(255,255,255,0.4)', borderRadius: '14px', border: '1px solid rgba(193,170,145,0.2)' },
-      emptyTitle: { fontSize: '1.3rem', color: '#3d2c1e', margin: '0 0 0.5rem', fontWeight: '500' },
-      emptyText: { fontSize: '0.95rem', color: '#7a6654', margin: 0 },
-      bookGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.2rem' },
-      bookCard: { padding: '1.4rem', background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(193,170,145,0.3)', borderRadius: '14px', transition: 'all 0.3s ease' },
-      bookTitle: { margin: '0 0 0.4rem', fontSize: '1.2rem', color: '#3d2c1e', fontWeight: '600' },
-      bookAuthor: { margin: '0 0 0.6rem', fontSize: '0.95rem', color: '#7a6654', fontStyle: 'italic' },
+      filterLabel: {
+          fontSize: '0.72rem',
+          color: '#8B7E66',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          fontWeight: '600',
+          fontFamily: "'Merriweather', Georgia, serif",
+      },
+      filterSelect: {
+          padding: '0.55rem 0.8rem',
+          borderRadius: '12px',
+          border: '2px solid #F4D9C6',
+          background: 'rgba(255, 253, 247, 0.8)',
+          color: '#3E2723',
+          fontSize: '0.9rem',
+          cursor: 'pointer',
+          fontFamily: "'Lora', Georgia, serif",
+          transition: 'border-color 0.3s ease',
+      },
+      clearBtn: {
+          padding: '0.55rem 1.2rem',
+          borderRadius: '25px',
+          border: '2px solid #D4774E',
+          background: 'transparent',
+          color: '#D4774E',
+          fontSize: '0.82rem',
+          cursor: 'pointer',
+          fontWeight: '600',
+          alignSelf: 'flex-end',
+          fontFamily: "'Merriweather', Georgia, serif",
+          transition: 'all 0.3s ease',
+      },
+      resultCount: {
+          fontSize: '0.9rem',
+          color: '#8B7E66',
+          marginBottom: '1rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      loadingText: {
+          textAlign: 'center',
+          fontSize: '1.1rem',
+          color: '#8B7E66',
+          marginTop: '3rem',
+          fontFamily: "'Lora', Georgia, serif",
+          fontStyle: 'italic',
+      },
+      emptyState: {
+          textAlign: 'center',
+          padding: '3rem',
+          background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.15) 100%)',
+          borderRadius: '20px',
+          border: '2px solid #F4D9C6',
+          boxShadow: '0 10px 30px rgba(93, 78, 55, 0.06)',
+      },
+      emptyTitle: {
+          fontSize: '1.3rem',
+          color: '#3E2723',
+          margin: '0 0 0.5rem',
+          fontWeight: '700',
+          fontFamily: "'Playfair Display', Georgia, serif",
+      },
+      emptyText: {
+          fontSize: '0.95rem',
+          color: '#8B7E66',
+          margin: 0,
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      bookGrid: {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '1.5rem',
+      },
+      bookCard: {
+          padding: '1.5rem',
+          background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.15) 100%)',
+          border: '2px solid #F4D9C6',
+          borderRadius: '15px',
+          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          boxShadow: '0 8px 25px rgba(93, 78, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+      },
+      bookTitle: {
+          margin: '0 0 0.4rem',
+          fontSize: '1.2rem',
+          color: '#3E2723',
+          fontWeight: '700',
+          fontFamily: "'Playfair Display', Georgia, serif",
+      },
+      bookAuthor: {
+          margin: '0 0 0.6rem',
+          fontSize: '0.9rem',
+          color: '#8B7E66',
+          fontStyle: 'italic',
+          fontFamily: "'Lora', Georgia, serif",
+      },
       bookMeta: { display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem' },
-      badge: { display: 'inline-block', background: 'rgba(166,124,91,0.15)', padding: '0.2rem 0.7rem', borderRadius: '20px', fontSize: '0.8rem', color: '#7a6654' },
-      ratingText: { fontSize: '0.95rem', color: '#c49a6c' },
-      bookNotes: { margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#8a7564', lineHeight: '1.4', fontStyle: 'italic' },
-      bookDate: { margin: '0.5rem 0 0', fontSize: '0.8rem', color: '#a99585' },
+      badge: {
+          display: 'inline-block',
+          background: 'rgba(212, 119, 78, 0.12)',
+          padding: '0.25rem 0.7rem',
+          borderRadius: '20px',
+          fontSize: '0.78rem',
+          color: '#D4774E',
+          fontWeight: '600',
+          fontFamily: "'Merriweather', Georgia, serif",
+      },
+      ratingText: { fontSize: '0.95rem', color: '#C9A961', letterSpacing: '2px' },
+      bookNotes: {
+          margin: '0.5rem 0 0',
+          fontSize: '0.88rem',
+          color: '#8B7E66',
+          lineHeight: '1.5',
+          fontStyle: 'italic',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      bookDate: {
+          margin: '0.5rem 0 0',
+          fontSize: '0.8rem',
+          color: '#A8B5A0',
+          fontFamily: "'Lora', Georgia, serif",
+      },
 }

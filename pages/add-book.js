@@ -14,7 +14,7 @@ export default function AddBook() {
         }
     }, [authLoading, isAdmin, router])
     const [form, setForm] = useState({
-          title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: ''
+          title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: '', favouriteQuote: ''
     })
 
   const [message, setMessage] = useState('')
@@ -71,7 +71,7 @@ export default function AddBook() {
                 const data = await res.json()
                 if (res.ok) {
                           setMessage('Book added successfully!')
-                          setForm({ title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '' })
+                          setForm({ title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: '', favouriteQuote: '' })
                           if (showBooks) fetchBooks()
                 } else {
                           setMessage(data.error || 'Failed to add book')
@@ -188,6 +188,10 @@ export default function AddBook() {
           <div style={styles.field}>
             <label style={styles.label}>Notes</label>
             <textarea name="notes" value={form.notes} onChange={handleChange} style={{...styles.input, minHeight: '100px'}} placeholder="Your notes" />
+  </div>
+          <div style={styles.field}>
+            <label style={styles.label}>Favourite Quote</label>
+            <textarea name="favouriteQuote" value={form.favouriteQuote} onChange={handleChange} style={{...styles.input, minHeight: '80px'}} placeholder="A favourite quote from the book" />
   </div>
 {form.coverUrl && (
               <div style={styles.coverPreview}>

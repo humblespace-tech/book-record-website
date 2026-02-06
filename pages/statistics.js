@@ -18,12 +18,13 @@ export default function Statistics() {
                   .catch(() => setLoading(false))
     }, [])
 
-    // Compute monthly reading data
+    // Compute monthly reading data (prefer dateFinished for backdating, fall back to createdAt)
     const getMonthlyData = () => {
               const months = {}
                         books.forEach(book => {
-                                      if (book.createdAt) {
-                                                        const d = new Date(book.createdAt)
+                                      const dateStr = book.dateFinished || book.createdAt
+                                      if (dateStr) {
+                                                        const d = new Date(dateStr)
                                                         const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
                                                         months[key] = (months[key] || 0) + 1
                                       }
@@ -45,12 +46,13 @@ export default function Statistics() {
               return sorted
     }
 
-    // Compute streaks
+    // Compute streaks (prefer dateFinished for backdating, fall back to createdAt)
     const getStreaks = () => {
               const months = {}
                         books.forEach(book => {
-                                      if (book.createdAt) {
-                                                        const d = new Date(book.createdAt)
+                                      const dateStr = book.dateFinished || book.createdAt
+                                      if (dateStr) {
+                                                        const d = new Date(dateStr)
                                                         const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
                                                         months[key] = true
                                       }
@@ -209,7 +211,7 @@ export default function Statistics() {
                         {monthlyData.length > 0 && (
                         <div style={s.chartSection}>
                             <h2 style={s.sectionTitle}>Reading Cadence</h2>
-                            <p style={s.sectionSubtitle}>Books added per month</p>
+                            <p style={s.sectionSubtitle}>Books finished per month</p>
                             <div style={s.chartContainer}>
                                 <svg viewBox={`0 0 ${svgW} ${svgH}`} style={s.svg} preserveAspectRatio="xMidYMid meet">
                                     <defs>

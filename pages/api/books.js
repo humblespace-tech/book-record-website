@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     try {
-      const { title, author, isbn, genre, rating, notes, pages, coverUrl, dateFinished } = req.body
+      const { title, author, isbn, genre, rating, notes, pages, coverUrl, dateFinished, favouriteQuote } = req.body
 
       if (!title || !author) {
         return res.status(400).json({ error: 'Title and author are required' })
@@ -46,6 +46,7 @@ export default async function handler(req, res) {
         pages: pages ? parseInt(pages) : 0,
         coverUrl: coverUrl || '',
         dateFinished: dateFinished || '',
+        favouriteQuote: favouriteQuote || '',
         createdAt: new Date(),
       }
 
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'PUT') {
     try {
       const { id } = req.query
-      const { title, author, isbn, genre, rating, notes, pages, coverUrl, dateFinished } = req.body
+      const { title, author, isbn, genre, rating, notes, pages, coverUrl, dateFinished, favouriteQuote } = req.body
 
       if (!id) {
         return res.status(400).json({ error: 'Book ID is required' })
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
         pages: pages ? parseInt(pages) : 0,
         coverUrl: coverUrl || '',
         dateFinished: dateFinished || '',
+        favouriteQuote: favouriteQuote || '',
         updatedAt: new Date(),
       }
 

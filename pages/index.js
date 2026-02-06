@@ -10,7 +10,7 @@ export default function Home() {
         const [loading, setLoading] = useState(true)
         const [editingBook, setEditingBook] = useState(null)
         const [editForm, setEditForm] = useState({
-                    title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: ''
+                    title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: '', favouriteQuote: ''
         })
         const [editMessage, setEditMessage] = useState('')
 
@@ -51,7 +51,8 @@ export default function Home() {
                                 notes: book.notes || '',
                                 pages: book.pages ? String(book.pages) : '',
                                 coverUrl: book.coverUrl || '',
-                                dateFinished: book.dateFinished || ''
+                                dateFinished: book.dateFinished || '',
+                                favouriteQuote: book.favouriteQuote || ''
                 })
                 setEditMessage('')
     }
@@ -116,6 +117,9 @@ export default function Home() {
                     <Link href="/statistics" className={styles.navBtn}>
                         Statistics
                     </Link>
+                    <Link href="/quotes" className={styles.navBtn}>
+                        Favourite Quotes
+                    </Link>
                 </div>
 
                 {isAdmin && (
@@ -155,6 +159,12 @@ export default function Home() {
                                      )}
 {book.dateFinished && <p className={styles.bookDateFinished}>Finished: {new Date(book.dateFinished).toLocaleDateString()}</p>}
 {book.notes && <p className={styles.bookNotes}>{book.notes}</p>}
+{book.favouriteQuote && (
+                                    <div className={styles.bookQuote}>
+                                        <span className={styles.quoteIcon}>&ldquo;</span>
+                                        <p className={styles.quoteText}>{book.favouriteQuote}</p>
+                                    </div>
+)}
                                      {isAdmin && (
                                      <div className={styles.bookActions}>
                                         <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
@@ -240,6 +250,10 @@ export default function Home() {
                             <div className={styles.editField}>
                                 <label className={styles.editLabel}>Notes</label>
                                 <textarea name="notes" value={editForm.notes} onChange={handleEditChange} className={styles.editInput} style={{ minHeight: '70px' }} />
+                            </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Favourite Quote</label>
+                                <textarea name="favouriteQuote" value={editForm.favouriteQuote} onChange={handleEditChange} className={styles.editInput} style={{ minHeight: '70px' }} placeholder="A favourite quote from the book" />
                             </div>
                             <div className={styles.editFormButtons}>
                                 <button type="button" onClick={closeEditModal} className={styles.cancelBtn}>Cancel</button>

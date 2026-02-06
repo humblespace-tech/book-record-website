@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import clientPromise from '../../lib/mongodb'
+import { verifyAuth } from '../../lib/auth'
 
 export default async function handler(req, res) {
   let client
@@ -12,6 +13,12 @@ export default async function handler(req, res) {
 
   const db = client.db('book-database')
   const collection = db.collection('books')
+
+  if (req.method !== 'GET') {
+    if (!verifyAuth(req)) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+  }
 
   if (req.method === 'GET') {
     try {

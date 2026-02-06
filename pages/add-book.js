@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useAuth } from '../lib/AuthContext'
 
 export default function AddBook() {
+    const { isAdmin, loading: authLoading } = useAuth()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (!authLoading && !isAdmin) {
+            router.replace('/')
+        }
+    }, [authLoading, isAdmin, router])
     const [form, setForm] = useState({
           title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: ''
     })
@@ -99,6 +109,18 @@ export default function AddBook() {
         } catch (err) {
                 setMessage('Failed to delete book')
         }
+  }
+
+  if (authLoading || !isAdmin) {
+    return (
+      <div style={styles.container}>
+        <main style={styles.main}>
+          <p style={{ textAlign: 'center', color: '#8B7E66', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginTop: '3rem' }}>
+            {authLoading ? 'Checking access...' : 'Redirecting...'}
+          </p>
+        </main>
+      </div>
+    )
   }
 
   return (

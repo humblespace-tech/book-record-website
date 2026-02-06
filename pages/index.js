@@ -2,8 +2,10 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import styles from '../styles/styles/Home.module.css'
+import { useAuth } from '../lib/AuthContext'
 
 export default function Home() {
+        const { isAdmin, logout } = useAuth()
         const [books, setBooks] = useState([])
         const [loading, setLoading] = useState(true)
         const [editingBook, setEditingBook] = useState(null)
@@ -101,6 +103,14 @@ export default function Home() {
                     Your personal library management system
                         </p>
 
+                <div style={{ textAlign: 'right', width: '100%', maxWidth: '900px', marginBottom: '0.5rem' }}>
+                    {isAdmin ? (
+                        <button onClick={logout} style={{ background: 'none', border: 'none', color: '#D4774E', cursor: 'pointer', fontSize: '0.9rem', fontFamily: "'Merriweather', Georgia, serif", fontWeight: '600' }}>Logout</button>
+                    ) : (
+                        <Link href="/login" style={{ color: '#8B7E66', textDecoration: 'none', fontSize: '0.9rem', fontFamily: "'Merriweather', Georgia, serif", fontWeight: '600' }}>Admin Login</Link>
+                    )}
+                </div>
+
                 <div className={styles.grid}>
                     <Link href="/search" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div className={styles.card} style={{ cursor: 'pointer' }}>
@@ -116,9 +126,11 @@ export default function Home() {
                         </Link>
                         </div>
 
+                {isAdmin && (
                 <Link href="/add-book">
                                             <button className={styles.addBookBtn}>+ Add a Book</button>
                         </Link>
+                )}
 
                 <section className={styles.collectionSection}>
                     <h2 className={styles.collectionTitle}>My Book Collection</h2>
@@ -151,10 +163,12 @@ export default function Home() {
                                      )}
 {book.dateFinished && <p className={styles.bookDateFinished}>Finished: {new Date(book.dateFinished).toLocaleDateString()}</p>}
 {book.notes && <p className={styles.bookNotes}>{book.notes}</p>}
+                                     {isAdmin && (
                                      <div className={styles.bookActions}>
                                         <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
                                         <button onClick={() => deleteBook(book._id, book.title)} className={styles.deleteBtn}>Delete</button>
     </div>
+                                     )}
     </div>
     </div>
                             ))}

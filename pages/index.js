@@ -253,7 +253,7 @@ export default function Home() {
             )}
 
             <footer className={styles.footer}>
-                <p>humblespace &copy; 2025</p>
+                <p>&ldquo;A reader lives a thousand lives before they die.&rdquo; &mdash; George R.R. Martin</p>
                 </footer>
                 </div>
     )

@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
 export default function Statistics() {
       const [books, setBooks] = useState([])
       const [loading, setLoading] = useState(true)
-      const canvasRef = useRef(null)
+      const [hoveredDot, setHoveredDot] = useState(null)
+      const [hoveredSlice, setHoveredSlice] = useState(null)
 
     useEffect(() => {
               fetch('/api/books')
@@ -28,7 +29,6 @@ export default function Statistics() {
                                       }
                         })
               const sorted = Object.entries(months).sort((a, b) => a[0].localeCompare(b[0]))
-              // Fill in gaps
               if (sorted.length > 1) {
                             const filled = []
                                           const start = new Date(sorted[0][0] + '-01')
@@ -71,7 +71,6 @@ export default function Statistics() {
                                               current = 1
                             }
               }
-              // Check if current streak is active (includes current or last month)
               const now = new Date()
               const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0')
               const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
@@ -81,108 +80,88 @@ export default function Statistics() {
               return { current: isActive ? current : 0, longest }
     }
 
+    // Compute genre breakdown
+    const getGenreBreakdown = () => {
+              const genres = {}
+              books.forEach(book => {
+                  const g = book.genre || 'Uncategorized'
+                  genres[g] = (genres[g] || 0) + 1
+              })
+              return Object.entries(genres)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 6)
+    }
+
     const totalPages = books.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0)
+    const avgPagesPerBook = books.length > 0 ? Math.round(totalPages / books.length) : 0
       const streaks = getStreaks()
       const monthlyData = getMonthlyData()
+    const genreBreakdown = getGenreBreakdown()
 
-    // Draw chart
-    useEffect(() => {
-              if (!canvasRef.current || monthlyData.length === 0) return
-              const canvas = canvasRef.current
-              const ctx = canvas.getContext('2d')
-              const dpr = window.devicePixelRatio || 1
-              const w = canvas.clientWidth
-              const h = canvas.clientHeight
-              canvas.width = w * dpr
-              canvas.height = h * dpr
-              ctx.scale(dpr, dpr)
+    // SVG chart helpers
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    const svgW = 800
+    const svgH = 250
+    const pad = { top: 30, right: 40, bottom: 40, left: 50 }
+    const chartW = svgW - pad.left - pad.right
+    const chartH = svgH - pad.top - pad.bottom
+    const maxVal = Math.max(...monthlyData.map(d => d[1]), 1)
 
-                      const pad = { top: 30, right: 30, bottom: 50, left: 50 }
-              const chartW = w - pad.left - pad.right
-              const chartH = h - pad.top - pad.bottom
-              const maxVal = Math.max(...monthlyData.map(d => d[1]), 1)
+    const getPoint = (i) => {
+        const x = pad.left + (i * (chartW / Math.max(monthlyData.length - 1, 1)))
+        const y = pad.top + chartH - (monthlyData[i][1] / maxVal) * chartH
+        return { x, y }
+    }
 
-                      // Background
-                      ctx.fillStyle = 'rgba(255,253,247,0.8)'
-              ctx.beginPath()
-              ctx.roundRect(0, 0, w, h, 15)
-              ctx.fill()
+    const linePath = monthlyData.map((_, i) => {
+        const { x, y } = getPoint(i)
+        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
 
-                      // Grid lines
-                      ctx.strokeStyle = 'rgba(244,217,198,0.5)'
-              ctx.lineWidth = 1
-              const gridLines = 4
-              for (let i = 0; i <= gridLines; i++) {
-                            const y = pad.top + (chartH / gridLines) * i
-                            ctx.beginPath()
-                            ctx.moveTo(pad.left, y)
-                            ctx.lineTo(w - pad.right, y)
-                            ctx.stroke()
-                            // Y labels
-                  ctx.fillStyle = '#8B7E66'
-                            ctx.font = "12px 'Lora', Georgia, serif"
-                            ctx.textAlign = 'right'
-                            ctx.fillText(Math.round(maxVal - (maxVal / gridLines) * i), pad.left - 8, y + 4)
-              }
+    const areaPath = monthlyData.length > 0
+        ? `M ${pad.left} ${pad.top + chartH} ` +
+          monthlyData.map((_, i) => { const { x, y } = getPoint(i); return `L ${x} ${y}` }).join(' ') +
+          ` L ${pad.left + chartW} ${pad.top + chartH} Z`
+        : ''
 
-                      // X labels
-                      ctx.fillStyle = '#8B7E66'
-              ctx.font = "11px 'Merriweather', Georgia, serif"
-              ctx.textAlign = 'center'
-              const step = Math.max(1, Math.floor(monthlyData.length / 6))
-              monthlyData.forEach((d, i) => {
-                            if (i % step === 0 || i === monthlyData.length - 1) {
-                                              const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
-                                              const parts = d[0].split('-')
-                                              const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                                              ctx.fillText(monthNames[parseInt(parts[1]) - 1] + ' ' + parts[0].slice(2), x, h - pad.bottom + 20)
-                            }
-              })
+    // Donut chart helpers
+    const genreColors = ['#D4774E', '#8B9D83', '#C9A961', '#8B7E66', '#5D4E37', '#A8B5A0']
+    const pieR = 100
+    const pieInner = 55
+    const pieCX = 150
+    const pieCY = 150
 
-                      // Area fill
-                      ctx.globalAlpha = 0.12
-              ctx.fillStyle = '#D4774E'
-              ctx.beginPath()
-              monthlyData.forEach((d, i) => {
-                            const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
-                            const y = pad.top + chartH - (d[1] / maxVal) * chartH
-                            if (i === 0) ctx.moveTo(x, y)
-                            else ctx.lineTo(x, y)
-              })
-              ctx.lineTo(pad.left + chartW, pad.top + chartH)
-              ctx.lineTo(pad.left, pad.top + chartH)
-              ctx.closePath()
-              ctx.fill()
-              ctx.globalAlpha = 1
+    const getSlicePath = (startAngle, endAngle) => {
+        const startRad = (startAngle - 90) * (Math.PI / 180)
+        const endRad = (endAngle - 90) * (Math.PI / 180)
+        const largeArc = endAngle - startAngle > 180 ? 1 : 0
 
-                      // Line
-                      ctx.strokeStyle = '#D4774E'
-              ctx.lineWidth = 2.5
-              ctx.lineJoin = 'round'
-              ctx.lineCap = 'round'
-              ctx.beginPath()
-              monthlyData.forEach((d, i) => {
-                            const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
-                            const y = pad.top + chartH - (d[1] / maxVal) * chartH
-                            if (i === 0) ctx.moveTo(x, y)
-                            else ctx.lineTo(x, y)
-              })
-              ctx.stroke()
+        const x1 = pieCX + pieR * Math.cos(startRad)
+        const y1 = pieCY + pieR * Math.sin(startRad)
+        const x2 = pieCX + pieR * Math.cos(endRad)
+        const y2 = pieCY + pieR * Math.sin(endRad)
+        const ix1 = pieCX + pieInner * Math.cos(endRad)
+        const iy1 = pieCY + pieInner * Math.sin(endRad)
+        const ix2 = pieCX + pieInner * Math.cos(startRad)
+        const iy2 = pieCY + pieInner * Math.sin(startRad)
 
-                      // Dots
-                      monthlyData.forEach((d, i) => {
-                                    const x = pad.left + (chartW / Math.max(monthlyData.length - 1, 1)) * i
-                                    const y = pad.top + chartH - (d[1] / maxVal) * chartH
-                                    ctx.fillStyle = '#D4774E'
-                                    ctx.beginPath()
-                                    ctx.arc(x, y, 5, 0, Math.PI * 2)
-                                    ctx.fill()
-                                    ctx.fillStyle = '#FFFDF7'
-                                    ctx.beginPath()
-                                    ctx.arc(x, y, 2.5, 0, Math.PI * 2)
-                                    ctx.fill()
-                      })
-    }, [monthlyData])
+        return [
+            `M ${x1} ${y1}`,
+            `A ${pieR} ${pieR} 0 ${largeArc} 1 ${x2} ${y2}`,
+            `L ${ix1} ${iy1}`,
+            `A ${pieInner} ${pieInner} 0 ${largeArc} 0 ${ix2} ${iy2}`,
+            'Z'
+        ].join(' ')
+    }
+
+    let currentAngle = 0
+    const slices = genreBreakdown.map(([genre, count], i) => {
+        const pct = (count / books.length) * 360
+        const start = currentAngle
+        const end = currentAngle + pct
+        currentAngle = end
+        return { genre, count, start, end, color: genreColors[i % genreColors.length], pct: ((count / books.length) * 100).toFixed(1) }
+    })
 
     return (
               <div style={s.container}>
@@ -190,9 +169,11 @@ export default function Statistics() {
                       <title>Statistics - humblespace</title>
       </Head>
               <main style={s.main}>
-                <Link href="/" style={s.backLink}>Back to Home</Link>
-                  <h1 style={s.title}>Statistics</h1>
-                  <p style={s.subtitle}>Your reading habits at a glance</p>
+                <Link href="/" style={s.backBtn}>
+                    Back to Library
+                </Link>
+                  <h1 style={s.title}>Reading Statistics</h1>
+                  <p style={s.subtitle}>Your reading journey at a glance</p>
 
   {loading ? (
                         <p style={s.loadingText}>Loading statistics...</p>
@@ -200,38 +181,155 @@ export default function Statistics() {
                         <p style={s.loadingText}>No books yet. Add some books to see your stats!</p>
                    ) : (
                                          <>
+                                             {/* Stat Cards */}
                                              <div style={s.statCards}>
-                                                 <div style={s.statCard}>
+                                                 <div style={s.statCard} className="stat-card">
+                                                     <div style={s.statCardGlow} />
                                                      <p style={s.statValue}>{books.length}</p>
                                    <p style={s.statLabel}>Total Books</p>
                      </div>
-                               <div style={s.statCard}>
+                               <div style={s.statCard} className="stat-card">
+                                                     <div style={s.statCardGlow} />
                                                      <p style={s.statValue}>{totalPages.toLocaleString()}</p>
-                                  <p style={s.statLabel}>Pages Read</p>
+                                  <p style={s.statLabel}>Pages Consumed</p>
     </div>
-                              <div style={s.statCard}>
+                              <div style={s.statCard} className="stat-card">
+                                <div style={s.statCardGlow} />
                                 <p style={s.statValue}>{streaks.current}</p>
-                                <p style={s.statLabel}>Current Streak (months)</p>
+                                <p style={s.statLabel}>Current Streak</p>
   </div>
-                            <div style={s.statCard}>
-                                <p style={s.statValue}>{streaks.longest}</p>
-                                <p style={s.statLabel}>Longest Streak (months)</p>
+                            <div style={s.statCard} className="stat-card">
+                                <div style={s.statCardGlow} />
+                                <p style={s.statValue}>{avgPagesPerBook}</p>
+                                <p style={s.statLabel}>Avg Pages / Book</p>
   </div>
   </div>
 
+                        {/* Reading Cadence SVG Chart */}
+                        {monthlyData.length > 0 && (
                         <div style={s.chartSection}>
-                            <h2 style={s.chartTitle}>Reading Cadence</h2>
-                            <p style={s.chartSubtitle}>Books added per month</p>
-                            <canvas ref={canvasRef} style={s.canvas} />
-  </div>
+                            <h2 style={s.sectionTitle}>Reading Cadence</h2>
+                            <p style={s.sectionSubtitle}>Books added per month</p>
+                            <div style={s.chartContainer}>
+                                <svg viewBox={`0 0 ${svgW} ${svgH}`} style={s.svg} preserveAspectRatio="xMidYMid meet">
+                                    <defs>
+                                        <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#D4774E" stopOpacity="0.4" />
+                                            <stop offset="100%" stopColor="#D4774E" stopOpacity="0.05" />
+                                        </linearGradient>
+                                    </defs>
 
-                        <div style={s.streakSection}>
-                            <h2 style={s.chartTitle}>Monthly Activity</h2>
+                                    {/* Grid lines */}
+                                    {[0, 1, 2, 3, 4].map(i => {
+                                        const y = pad.top + (chartH / 4) * i
+                                        const val = Math.round(maxVal - (maxVal / 4) * i)
+                                        return (
+                                            <g key={i}>
+                                                <line x1={pad.left} y1={y} x2={svgW - pad.right} y2={y} stroke="#F4D9C6" strokeWidth="1" strokeDasharray="4" />
+                                                <text x={pad.left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="#8B7E66" fontFamily="'Lora', Georgia, serif">{val}</text>
+                                            </g>
+                                        )
+                                    })}
+
+                                    {/* Area */}
+                                    <path d={areaPath} fill="url(#areaGrad)" />
+
+                                    {/* Line */}
+                                    <path d={linePath} fill="none" stroke="#D4774E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+                                    {/* Dots and labels */}
+                                    {monthlyData.map((d, i) => {
+                                        const { x, y } = getPoint(i)
+                                        const parts = d[0].split('-')
+                                        const label = monthNames[parseInt(parts[1]) - 1] + " '" + parts[0].slice(2)
+                                        const step = Math.max(1, Math.floor(monthlyData.length / 8))
+                                        const showLabel = i % step === 0 || i === monthlyData.length - 1
+                                        const isHovered = hoveredDot === i
+                                        return (
+                                            <g key={i}
+                                                onMouseEnter={() => setHoveredDot(i)}
+                                                onMouseLeave={() => setHoveredDot(null)}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <circle cx={x} cy={y} r={isHovered ? 8 : 5} fill="#D4774E" stroke="white" strokeWidth="2" style={{ transition: 'r 0.2s ease' }} />
+                                                {isHovered && (
+                                                    <text x={x} y={y - 14} textAnchor="middle" fontSize="13" fontWeight="700" fill="#3E2723" fontFamily="'Playfair Display', Georgia, serif">{d[1]}</text>
+                                                )}
+                                                {showLabel && (
+                                                    <text x={x} y={svgH - 8} textAnchor="middle" fontSize="10" fill="#8B7E66" fontFamily="'Merriweather', Georgia, serif">{label}</text>
+                                                )}
+                                            </g>
+                                        )
+                                    })}
+                                </svg>
+                            </div>
+  </div>
+                        )}
+
+                        {/* Genre Breakdown Donut Chart */}
+                        {genreBreakdown.length > 0 && (
+                        <div style={s.chartSection}>
+                            <h2 style={s.sectionTitle}>Favourite Genres</h2>
+                            <p style={s.sectionSubtitle}>What you love to read</p>
+                            <div style={s.pieSection}>
+                                <svg viewBox="0 0 300 300" style={s.pieSvg}>
+                                    {slices.map((slice, i) => (
+                                        <path
+                                            key={i}
+                                            d={getSlicePath(slice.start, slice.end)}
+                                            fill={slice.color}
+                                            stroke="#FFFDF7"
+                                            strokeWidth="2"
+                                            style={{
+                                                transition: 'opacity 0.3s ease, transform 0.3s ease',
+                                                opacity: hoveredSlice !== null && hoveredSlice !== i ? 0.5 : 1,
+                                                transformOrigin: `${pieCX}px ${pieCY}px`,
+                                                transform: hoveredSlice === i ? 'scale(1.05)' : 'scale(1)',
+                                                cursor: 'pointer',
+                                            }}
+                                            onMouseEnter={() => setHoveredSlice(i)}
+                                            onMouseLeave={() => setHoveredSlice(null)}
+                                        />
+                                    ))}
+                                    {/* Center circle */}
+                                    <circle cx={pieCX} cy={pieCY} r={pieInner - 5} fill="#FFFDF7" />
+                                    <text x={pieCX} y={pieCY - 6} textAnchor="middle" fontSize="32" fontWeight="700" fill="#D4774E" fontFamily="'Playfair Display', Georgia, serif">{books.length}</text>
+                                    <text x={pieCX} y={pieCY + 16} textAnchor="middle" fontSize="11" fill="#8B7E66" fontFamily="'Merriweather', Georgia, serif" textTransform="uppercase" letterSpacing="1">BOOKS</text>
+                                </svg>
+
+                                <div style={s.legend}>
+                                    {slices.map((slice, i) => (
+                                        <div
+                                            key={i}
+                                            style={{
+                                                ...s.legendItem,
+                                                opacity: hoveredSlice !== null && hoveredSlice !== i ? 0.5 : 1,
+                                                transition: 'opacity 0.3s ease',
+                                            }}
+                                            onMouseEnter={() => setHoveredSlice(i)}
+                                            onMouseLeave={() => setHoveredSlice(null)}
+                                        >
+                                            <div style={{ ...s.legendColor, background: slice.color }} />
+                                            <div>
+                                                <span style={s.legendGenre}>{slice.genre}</span>
+                                                <span style={s.legendCount}> {slice.count} book{slice.count !== 1 ? 's' : ''}</span>
+                                                <span style={s.legendPct}> {slice.pct}%</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+  </div>
+                        )}
+
+                        {/* Monthly Activity Grid */}
+                        <div style={s.chartSection}>
+                            <h2 style={s.sectionTitle}>Monthly Activity</h2>
+                            <p style={s.sectionSubtitle}>Your reading heatmap</p>
                             <div style={s.streakGrid}>
 {monthlyData.map(([month, count]) => {
                                       const parts = month.split('-')
-                                      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                                      const label = monthNames[parseInt(parts[1]) - 1] + ' ' + parts[0].slice(2)
+                                      const label = monthNames[parseInt(parts[1]) - 1] + " '" + parts[0].slice(2)
                                       const opacity = count > 0 ? Math.min(0.3 + (count / Math.max(...monthlyData.map(d => d[1]))) * 0.7, 1) : 0.08
                                       return (
                                                                                 <div key={month} style={{...s.streakCell, background: `rgba(212,119,78,${opacity})`}}>
@@ -245,6 +343,13 @@ export default function Statistics() {
   </>
                 )}
 </main>
+
+                <style jsx>{`
+                    .stat-card:hover {
+                        transform: translateY(-5px) rotate(-1deg) !important;
+                        box-shadow: 0 15px 40px rgba(93, 78, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+                    }
+                `}</style>
                   </div>
     )
 }
@@ -257,16 +362,29 @@ const s = {
           position: 'relative',
       },
       main: { maxWidth: '900px', margin: '0 auto', color: '#5D4E37', position: 'relative', zIndex: 1 },
-      backLink: {
-          color: '#D4774E',
+      backBtn: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0.7rem 1.8rem',
+          background: '#5D4E37',
+          color: '#FFFDF7',
+          border: '2px solid #5D4E37',
+          borderRadius: '30px',
           textDecoration: 'none',
-          fontSize: '0.9rem',
+          fontSize: '0.95rem',
           fontFamily: "'Merriweather', Georgia, serif",
-          fontWeight: '600',
+          fontWeight: '400',
+          letterSpacing: '0.5px',
+          cursor: 'pointer',
+          transition: 'all 0.4s ease',
+          boxShadow: '0 3px 10px rgba(93, 78, 55, 0.1)',
+          position: 'relative',
+          overflow: 'hidden',
       },
       title: {
           fontSize: '2.8rem',
-          margin: '1rem 0 0.3rem',
+          margin: '1.5rem 0 0.3rem',
           color: '#3E2723',
           fontWeight: '700',
           fontFamily: "'Playfair Display', Georgia, serif",
@@ -275,7 +393,7 @@ const s = {
       subtitle: {
           color: '#8B7E66',
           fontSize: '1.1rem',
-          margin: '0 0 2rem',
+          margin: '0 0 2.5rem',
           fontFamily: "'Lora', Georgia, serif",
       },
       loadingText: {
@@ -289,63 +407,130 @@ const s = {
       statCards: {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1.2rem',
-          marginBottom: '2.5rem',
+          gap: '1.5rem',
+          marginBottom: '3rem',
       },
       statCard: {
-          background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.2) 100%)',
+          background: 'linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.3) 100%)',
           border: '3px solid #F4D9C6',
           borderRadius: '20px',
-          padding: '1.8rem 1.5rem',
+          padding: '2.5rem 2rem',
           textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(93, 78, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          boxShadow: '0 10px 30px rgba(93, 78, 55, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+          transition: 'all 0.3s ease',
           position: 'relative',
           overflow: 'hidden',
       },
+      statCardGlow: {
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          width: '40px',
+          height: '40px',
+          background: 'radial-gradient(circle, #C9A961, transparent)',
+          opacity: 0.2,
+          borderRadius: '50%',
+          pointerEvents: 'none',
+      },
       statValue: {
-          fontSize: '2.5rem',
+          fontSize: '3.5rem',
           fontWeight: '700',
-          color: '#3E2723',
-          margin: '0 0 0.3rem',
+          color: '#D4774E',
+          margin: '0 0 0.5rem',
           fontFamily: "'Playfair Display', Georgia, serif",
+          lineHeight: 1,
       },
       statLabel: {
-          fontSize: '0.78rem',
+          fontSize: '1rem',
           color: '#8B7E66',
           margin: 0,
           textTransform: 'uppercase',
-          letterSpacing: '0.5px',
+          letterSpacing: '1px',
           fontWeight: '600',
           fontFamily: "'Merriweather', Georgia, serif",
       },
-      chartSection: { marginBottom: '2.5rem' },
-      chartTitle: {
-          fontSize: '1.6rem',
+      sectionTitle: {
+          fontSize: '1.8rem',
           color: '#3E2723',
           fontWeight: '700',
           margin: '0 0 0.3rem',
           fontFamily: "'Playfair Display', Georgia, serif",
       },
-      chartSubtitle: {
+      sectionSubtitle: {
           color: '#8B7E66',
-          fontSize: '0.9rem',
-          margin: '0 0 1rem',
+          fontSize: '0.95rem',
+          margin: '0 0 1.2rem',
           fontFamily: "'Lora', Georgia, serif",
       },
-      canvas: {
-          width: '100%',
-          height: '300px',
-          display: 'block',
-          borderRadius: '15px',
+      chartSection: { marginBottom: '3rem' },
+      chartContainer: {
+          background: '#FFFDF7',
+          borderRadius: '20px',
+          padding: '1.5rem 1rem 0.5rem',
           border: '2px solid #F4D9C6',
+          boxShadow: '0 8px 25px rgba(93, 78, 55, 0.06)',
       },
-      streakSection: { marginBottom: '2rem' },
+      svg: {
+          width: '100%',
+          height: 'auto',
+          display: 'block',
+      },
+      // Donut chart
+      pieSection: {
+          display: 'flex',
+          gap: '3rem',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          background: '#FFFDF7',
+          borderRadius: '20px',
+          padding: '2rem',
+          border: '2px solid #F4D9C6',
+          boxShadow: '0 8px 25px rgba(93, 78, 55, 0.06)',
+      },
+      pieSvg: {
+          width: '260px',
+          height: '260px',
+      },
+      legend: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+      },
+      legendItem: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          fontSize: '1rem',
+          cursor: 'pointer',
+      },
+      legendColor: {
+          width: '28px',
+          height: '28px',
+          borderRadius: '8px',
+          flexShrink: 0,
+      },
+      legendGenre: {
+          fontWeight: '600',
+          color: '#3E2723',
+          fontFamily: "'Merriweather', Georgia, serif",
+      },
+      legendCount: {
+          color: '#8B7E66',
+          fontSize: '0.9rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      legendPct: {
+          color: '#D4774E',
+          fontWeight: '700',
+          marginLeft: '0.3rem',
+          fontFamily: "'Lora', Georgia, serif",
+      },
+      // Activity grid
       streakGrid: {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(85px, 1fr))',
           gap: '0.6rem',
-          marginTop: '1rem',
       },
       streakCell: {
           borderRadius: '12px',

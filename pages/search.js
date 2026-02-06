@@ -58,7 +58,7 @@ export default function Search() {
                       <title>Search - humblespace</title>
       </Head>
               <main style={s.main}>
-                <Link href="/" style={s.backLink}>Back to Home</Link>
+                <Link href="/" style={s.backBtn}>Back to Library</Link>
                   <h1 style={s.title}>Search & Filter</h1>
                   <p style={s.subtitle}>Find books in your collection</p>
 
@@ -159,12 +159,25 @@ const s = {
           position: 'relative',
       },
       main: { maxWidth: '900px', margin: '0 auto', color: '#5D4E37', position: 'relative', zIndex: 1 },
-      backLink: {
-          color: '#D4774E',
+      backBtn: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0.7rem 1.8rem',
+          background: '#5D4E37',
+          color: '#FFFDF7',
+          border: '2px solid #5D4E37',
+          borderRadius: '30px',
           textDecoration: 'none',
-          fontSize: '0.9rem',
+          fontSize: '0.95rem',
           fontFamily: "'Merriweather', Georgia, serif",
-          fontWeight: '600',
+          fontWeight: '400',
+          letterSpacing: '0.5px',
+          cursor: 'pointer',
+          transition: 'all 0.4s ease',
+          boxShadow: '0 3px 10px rgba(93, 78, 55, 0.1)',
+          position: 'relative',
+          overflow: 'hidden',
       },
       title: {
           fontSize: '2.8rem',

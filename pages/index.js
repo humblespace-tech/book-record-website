@@ -111,20 +111,14 @@ export default function Home() {
                     )}
                 </div>
 
-                <div className={styles.grid}>
-                    <Link href="/search" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.card} style={{ cursor: 'pointer' }}>
-                            <h3>Search & Filter</h3>
-                            <p>Find books by title, author, or genre</p>
-                        </div>
-                        </Link>
-                    <Link href="/statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div className={styles.card} style={{ cursor: 'pointer' }}>
-                            <h3>Statistics</h3>
-                            <p>View your reading habits and collection stats</p>
-                        </div>
-                        </Link>
-                        </div>
+                <div className={styles.navButtons}>
+                    <Link href="/search" className={styles.navBtn}>
+                        Search & Filter
+                    </Link>
+                    <Link href="/statistics" className={styles.navBtn}>
+                        Statistics
+                    </Link>
+                </div>
 
                 {isAdmin && (
                 <Link href="/add-book">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { fetchBookCoverUrl } from '../lib/bookCover'
 
 export default function AddBook() {
             const [form, setForm] = useState({

@@ -63,7 +63,8 @@ export default function Home() {
     }
 
     const handleEditChange = (e) => {
-                setEditForm({ ...editForm, [e.target.name]: e.target.value })
+                const { name, value } = e.target
+                setEditForm(prev => ({ ...prev, [name]: value }))
     }
 
     const handleEditSubmit = async (e) => {
@@ -101,7 +102,7 @@ export default function Home() {
                     humblespace
                         </h1>
                 <p className={styles.description}>
-                    Your personal library management system
+                    my life in books
                         </p>
 
                 {isAdmin && (

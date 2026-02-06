@@ -24,7 +24,8 @@ export default function AddBook() {
     const [showBooks, setShowBooks] = useState(false)
 
   const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value })
+        const { name, value } = e.target
+        setForm(prev => ({ ...prev, [name]: value }))
   }
 
   // Auto-fetch cover when title or author changes

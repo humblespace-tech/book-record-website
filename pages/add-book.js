@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function AddBook() {
     const [form, setForm] = useState({
-          title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: ''
+          title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: ''
     })
 
   const [message, setMessage] = useState('')
@@ -156,6 +156,12 @@ export default function AddBook() {
             <div style={styles.field}>
               <label style={styles.label}>Pages</label>
               <input name="pages" type="number" value={form.pages} onChange={handleChange} style={styles.input} placeholder="Number of pages" min="0" />
+  </div>
+  </div>
+          <div style={styles.row}>
+            <div style={styles.field}>
+              <label style={styles.label}>Date Finished</label>
+              <input name="dateFinished" type="date" value={form.dateFinished} onChange={handleChange} style={styles.input} />
   </div>
   </div>
           <div style={styles.field}>

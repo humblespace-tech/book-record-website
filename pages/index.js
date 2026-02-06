@@ -242,7 +242,36 @@ export default function Home() {
                             </div>
                             <div className={styles.editField}>
                                 <label className={styles.editLabel}>Cover Image URL</label>
-                                <input name="coverUrl" value={editForm.coverUrl} onChange={handleEditChange} className={styles.editInput} placeholder="https://example.com/cover.jpg" />
+                                <input name="coverUrl" value={editForm.coverUrl && !editForm.coverUrl.startsWith('data:') ? editForm.coverUrl : ''} onChange={handleEditChange} className={styles.editInput} placeholder="https://example.com/cover.jpg" />
+                            </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Upload Cover Image</label>
+                                <p style={{fontSize: '0.78rem', color: '#8B7E66', fontFamily: "'Lora', Georgia, serif", margin: '0 0 0.4rem 0', fontStyle: 'italic'}}>Upload a JPG if no cover was found automatically</p>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0]
+                                        if (!file) return
+                                        if (file.size > 3 * 1024 * 1024) {
+                                            setEditMessage('Image is too large. Please use an image under 3MB.')
+                                            return
+                                        }
+                                        const reader = new FileReader()
+                                        reader.onloadend = () => {
+                                            setEditForm(prev => ({ ...prev, coverUrl: reader.result }))
+                                            setEditMessage('Cover image uploaded!')
+                                        }
+                                        reader.readAsDataURL(file)
+                                    }}
+                                    className={styles.editInput}
+                                    style={{cursor: 'pointer'}}
+                                />
+                                {editForm.coverUrl && (
+                                    <div style={{marginTop: '0.5rem', textAlign: 'center'}}>
+                                        <img src={editForm.coverUrl} alt="Cover preview" style={{maxWidth: '80px', height: 'auto', borderRadius: '8px', boxShadow: '0 2px 8px rgba(62,39,35,0.15)'}} />
+                                    </div>
+                                )}
                             </div>
                             <div className={styles.editField}>
                                 <label className={styles.editLabel}>Date Finished</label>

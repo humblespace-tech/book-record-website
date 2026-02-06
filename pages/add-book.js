@@ -196,9 +196,11 @@ export default function AddBook() {
   </div>
 {form.coverUrl && (
               <div style={styles.coverPreview}>
-              <label style={styles.label}>Cover Found!</label>
+              <label style={styles.label}>{form.coverUrl.startsWith('data:') ? 'Uploaded Cover' : 'Cover Found!'}</label>
               <img src={form.coverUrl} alt="Book cover" style={styles.coverPreviewImg} />
-              <div style={{fontSize: '0.75rem', color: '#8B7E66', marginTop: '0.5rem', wordBreak: 'break-all', fontFamily: "'Lora', Georgia, serif"}}>URL: {form.coverUrl}</div>
+              {!form.coverUrl.startsWith('data:') && (
+                <div style={{fontSize: '0.75rem', color: '#8B7E66', marginTop: '0.5rem', wordBreak: 'break-all', fontFamily: "'Lora', Georgia, serif"}}>URL: {form.coverUrl}</div>
+              )}
   </div>
           )}
 {fetchingCover && (
@@ -206,6 +208,29 @@ export default function AddBook() {
               Searching for cover...
                 </div>
           )}
+          <div style={styles.field}>
+            <label style={styles.label}>Upload Cover Image</label>
+            <p style={{fontSize: '0.78rem', color: '#8B7E66', fontFamily: "'Lora', Georgia, serif", margin: '0 0 0.4rem 0', fontStyle: 'italic'}}>Upload a JPG if no cover was found automatically</p>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (!file) return
+                if (file.size > 3 * 1024 * 1024) {
+                  setMessage('Image is too large. Please use an image under 3MB.')
+                  return
+                }
+                const reader = new FileReader()
+                reader.onloadend = () => {
+                  setForm(prev => ({ ...prev, coverUrl: reader.result }))
+                  setMessage('Cover image uploaded!')
+                }
+                reader.readAsDataURL(file)
+              }}
+              style={styles.fileInput}
+            />
+          </div>
           <button type="submit" disabled={loading} style={{...styles.button, opacity: loading ? 0.7 : 1}}>{loading ? 'Adding...' : 'Add Book'}</button>
             </form>
         <div style={styles.divider} />
@@ -459,5 +484,16 @@ const styles = {
         padding: '2rem',
         fontFamily: "'Lora', Georgia, serif",
         fontStyle: 'italic',
+    },
+    fileInput: {
+        width: '100%',
+        padding: '0.7rem 0.9rem',
+        borderRadius: '12px',
+        border: '2px solid #F4D9C6',
+        background: 'rgba(255, 253, 247, 0.8)',
+        color: '#3E2723',
+        fontSize: '0.9rem',
+        fontFamily: "'Lora', Georgia, serif",
+        cursor: 'pointer',
     },
 }

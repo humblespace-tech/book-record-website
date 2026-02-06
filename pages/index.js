@@ -103,13 +103,11 @@ export default function Home() {
                     Your personal library management system
                         </p>
 
-                <div style={{ textAlign: 'right', width: '100%', maxWidth: '900px', marginBottom: '0.5rem' }}>
-                    {isAdmin ? (
+                {isAdmin && (
+                    <div style={{ textAlign: 'right', width: '100%', maxWidth: '900px', marginBottom: '0.5rem' }}>
                         <button onClick={logout} style={{ background: 'none', border: 'none', color: '#D4774E', cursor: 'pointer', fontSize: '0.9rem', fontFamily: "'Merriweather', Georgia, serif", fontWeight: '600' }}>Logout</button>
-                    ) : (
-                        <Link href="/login" style={{ color: '#8B7E66', textDecoration: 'none', fontSize: '0.9rem', fontFamily: "'Merriweather', Georgia, serif", fontWeight: '600' }}>Admin Login</Link>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <div className={styles.navButtons}>
                     <Link href="/search" className={styles.navBtn}>

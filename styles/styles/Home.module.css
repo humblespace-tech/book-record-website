@@ -70,9 +70,29 @@
     text-align: center;
     line-height: 1.6;
     font-size: 1.15rem;
-    margin: 0.8rem 0 2.5rem 0;
+    margin: 0.8rem 0 0.5rem 0;
     color: #8B7E66;
     font-family: 'Lora', Georgia, serif;
+}
+
+.telegramLink {
+    text-align: center;
+    font-size: 0.95rem;
+    margin: 0 0 2.5rem 0;
+    color: #8B7E66;
+    font-family: 'Lora', Georgia, serif;
+}
+
+.telegramAnchor {
+    color: #D4774E;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.telegramAnchor:hover {
+    color: #5D4E37;
+    text-decoration: underline;
 }
 
 /* ===== NAVIGATION BUTTONS ===== */

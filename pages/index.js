@@ -150,6 +150,9 @@ export default function Home() {
                 <p className={styles.description}>
                     Life in books
                         </p>
+                <p className={styles.telegramLink}>
+                    Join me on <a href="https://t.me/humblespace" target="_blank" rel="noopener noreferrer" className={styles.telegramAnchor}>Telegram</a>
+                </p>
 
                 {isAdmin && (
                     <div style={{ textAlign: 'right', width: '100%', maxWidth: '900px', marginBottom: '0.5rem' }}>

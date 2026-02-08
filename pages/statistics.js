@@ -18,7 +18,7 @@ export default function Statistics() {
                   .catch(() => setLoading(false))
     }, [])
 
-    // Compute monthly reading data (prefer dateFinished for backdating, fall back to createdAt)
+    // Compute monthly reading data for the last 12 months
     const getMonthlyData = () => {
               const months = {}
                         books.forEach(book => {
@@ -29,21 +29,15 @@ export default function Statistics() {
                                                         months[key] = (months[key] || 0) + 1
                                       }
                         })
-              const sorted = Object.entries(months).sort((a, b) => a[0].localeCompare(b[0]))
-              if (sorted.length > 1) {
-                            const filled = []
-                                          const start = new Date(sorted[0][0] + '-01')
-                            const end = new Date(sorted[sorted.length - 1][0] + '-01')
-                            const cur = new Date(start)
-                            while (cur <= end) {
-                                              const key = cur.getFullYear() + '-' + String(cur.getMonth() + 1).padStart(2, '0')
-                                              const found = sorted.find(s => s[0] === key)
-                                              filled.push([key, found ? found[1] : 0])
-                                              cur.setMonth(cur.getMonth() + 1)
-                            }
-                            return filled
+              // Generate the last 12 months
+              const now = new Date()
+              const filled = []
+              for (let i = 11; i >= 0; i--) {
+                            const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+                            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+                            filled.push([key, months[key] || 0])
               }
-              return sorted
+              return filled
     }
 
     // Compute streaks (prefer dateFinished for backdating, fall back to createdAt)

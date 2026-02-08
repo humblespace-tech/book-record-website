@@ -260,26 +260,22 @@ export default function Statistics() {
                                          <>
                                              {/* Stat Cards */}
                                              <div style={s.statCards}>
-                                                 <div style={s.statCard} className="stat-card">
-                                                     <div style={s.statCardGlow} />
-                                                     <p style={s.statValue}>{books.length}</p>
-                                   <p style={s.statLabel}>Total Books</p>
-                     </div>
-                               <div style={s.statCard} className="stat-card">
-                                                     <div style={s.statCardGlow} />
-                                                     <p style={s.statValue}>{totalPages.toLocaleString()}</p>
-                                  <p style={s.statLabel}>Pages Consumed</p>
-    </div>
-                              <div style={s.statCard} className="stat-card">
-                                <div style={s.statCardGlow} />
-                                <p style={s.statValue}>{streaks.current}</p>
-                                <p style={s.statLabel}>Current Streak</p>
-  </div>
-                            <div style={s.statCard} className="stat-card">
-                                <div style={s.statCardGlow} />
-                                <p style={s.statValue}>{avgPagesPerBook}</p>
-                                <p style={s.statLabel}>Avg Pages / Book</p>
-  </div>
+                                                 {[
+                                                     { value: books.length, label: 'Total Books' },
+                                                     { value: totalPages.toLocaleString(), label: 'Pages Consumed' },
+                                                     { value: streaks.current, label: 'Current Streak' },
+                                                     { value: avgPagesPerBook, label: 'Avg Pages / Book' },
+                                                 ].map((stat, i) => {
+                                                     const str = String(stat.value)
+                                                     const fontSize = str.length <= 3 ? '3.5rem' : str.length <= 5 ? '2.8rem' : '2.2rem'
+                                                     return (
+                                                         <div key={i} style={s.statCard} className="stat-card">
+                                                             <div style={s.statCardGlow} />
+                                                             <p style={{...s.statValue, fontSize}}>{stat.value}</p>
+                                                             <p style={s.statLabel}>{stat.label}</p>
+                                                         </div>
+                                                     )
+                                                 })}
   </div>
 
                         {/* Reading Cadence SVG Chart */}

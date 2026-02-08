@@ -176,6 +176,145 @@
     height: 300px;
 }
 
+/* ===== CURRENT READ SECTION ===== */
+
+.currentReadSection {
+    width: 100%;
+    max-width: 700px;
+    margin-top: 2.5rem;
+    text-align: center;
+}
+
+.currentReadTitle {
+    font-size: 1.6rem;
+    color: #3E2723;
+    font-weight: 700;
+    font-family: 'Playfair Display', Georgia, serif;
+    margin-bottom: 1.2rem;
+}
+
+.currentReadCard {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #FFFDF7 0%, rgba(244, 217, 198, 0.25) 100%);
+    border: 2px solid #D4774E;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(212, 119, 78, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.currentReadCard:hover {
+    box-shadow: 0 14px 40px rgba(212, 119, 78, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.currentReadCover {
+    flex-shrink: 0;
+    width: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(62, 39, 35, 0.15);
+}
+
+.currentReadCoverImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.currentReadCoverPlaceholder {
+    flex-shrink: 0;
+    width: 120px;
+    height: 170px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #D4774E 0%, #3E2723 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.currentReadInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.currentReadBookTitle {
+    margin: 0 0 0.3rem 0;
+    font-size: 1.35rem;
+    color: #3E2723;
+    font-weight: 700;
+    font-family: 'Playfair Display', Georgia, serif;
+    line-height: 1.3;
+}
+
+.currentReadBookAuthor {
+    margin: 0 0 0.6rem 0;
+    font-size: 0.95rem;
+    color: #8B7E66;
+    font-style: italic;
+    font-family: 'Lora', Georgia, serif;
+}
+
+.currentReadGenres {
+    margin-bottom: 0.5rem;
+}
+
+.clearCurrentReadBtn {
+    margin-top: 0.8rem;
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    border: 2px solid #b45050;
+    background: transparent;
+    color: #b45050;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Merriweather', Georgia, serif;
+    transition: all 0.3s ease;
+}
+
+.clearCurrentReadBtn:hover {
+    background: #b45050;
+    color: #FFFDF7;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(180, 80, 80, 0.2);
+}
+
+.setCurrentReadBtn {
+    flex: 1;
+    padding: 0.55rem 0.8rem;
+    border-radius: 25px;
+    border: 2px solid #D4774E;
+    background: transparent;
+    color: #D4774E;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Merriweather', Georgia, serif;
+}
+
+.setCurrentReadBtn:hover {
+    background: #D4774E;
+    color: #FFFDF7;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(212, 119, 78, 0.2);
+}
+
+.currentReadIndicator {
+    flex: 1;
+    text-align: center;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #D4774E;
+    font-family: 'Merriweather', Georgia, serif;
+    font-style: italic;
+}
+
 /* ===== COLLECTION SECTION ===== */
 
 .collectionSection {
@@ -684,5 +823,19 @@
     .navButtons {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .currentReadCard {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .currentReadCover,
+    .currentReadCoverPlaceholder {
+        width: 100px;
+    }
+
+    .currentReadInfo {
+        text-align: center;
     }
 }

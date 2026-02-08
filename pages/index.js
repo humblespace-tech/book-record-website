@@ -13,6 +13,7 @@ export default function Home() {
                     title: '', author: '', isbn: '', genre: '', rating: '', notes: '', pages: '', coverUrl: '', dateFinished: '', favouriteQuote: ''
         })
         const [editMessage, setEditMessage] = useState('')
+        const [currentReadId, setCurrentReadId] = useState(null)
 
     const fetchBooks = () => {
                 fetch('/api/books')
@@ -24,9 +25,21 @@ export default function Home() {
                     .catch(() => setLoading(false))
     }
 
+    const fetchCurrentRead = () => {
+                fetch('/api/current-read')
+                    .then(res => res.json())
+                    .then(data => {
+                                        setCurrentReadId(data ? data.bookId : null)
+                    })
+                    .catch(() => {})
+    }
+
     useEffect(() => {
                 fetchBooks()
+                fetchCurrentRead()
     }, [])
+
+    const currentReadBook = currentReadId ? books.find(b => b._id === currentReadId) : null
 
     const deleteBook = async (id, title) => {
                 if (!confirm(`Are you sure you want to delete "${title}"?`)) return
@@ -34,9 +47,32 @@ export default function Home() {
                                 const res = await fetch('/api/books?id=' + id, { method: 'DELETE' })
                                 if (res.ok) {
                                                     setBooks(books.filter(b => b._id !== id))
+                                                    if (id === currentReadId) clearCurrentRead()
                                 }
                 } catch (err) {
                                 alert('Failed to delete book')
+                }
+    }
+
+    const setCurrentRead = async (bookId) => {
+                try {
+                    const res = await fetch('/api/current-read', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bookId }),
+                    })
+                    if (res.ok) setCurrentReadId(bookId)
+                } catch (err) {
+                    console.error('Failed to set current read')
+                }
+    }
+
+    const clearCurrentRead = async () => {
+                try {
+                    const res = await fetch('/api/current-read', { method: 'DELETE' })
+                    if (res.ok) setCurrentReadId(null)
+                } catch (err) {
+                    console.error('Failed to clear current read')
                 }
     }
 
@@ -102,17 +138,17 @@ export default function Home() {
     return (
                 <div className={styles.container}>
             <Head>
-                        <title>humblespace</title>
+                        <title>Humblespace</title>
                     <meta name="description" content="Manage your book collection" />
                         <link rel="icon" href="/favicon.ico" />
         </Head>
 
             <main className={styles.main}>
                 <h1 className={styles.title}>
-                    humblespace
+                    Humblespace
                         </h1>
                 <p className={styles.description}>
-                    my life in books
+                    Life in books
                         </p>
 
                 {isAdmin && (
@@ -137,6 +173,39 @@ export default function Home() {
                 <Link href="/add-book">
                                             <button className={styles.addBookBtn}>+ Add a Book</button>
                         </Link>
+                )}
+
+                {currentReadBook && (
+                    <section className={styles.currentReadSection}>
+                        <h2 className={styles.currentReadTitle}>Currently Reading</h2>
+                        <div className={styles.currentReadCard}>
+                            {currentReadBook.coverUrl ? (
+                                <div className={styles.currentReadCover}>
+                                    <img src={currentReadBook.coverUrl} alt={currentReadBook.title + ' cover'} className={styles.currentReadCoverImage} />
+                                </div>
+                            ) : (
+                                <div className={styles.currentReadCoverPlaceholder}>
+                                    <span className={styles.coverPlaceholderIcon}>📖</span>
+                                </div>
+                            )}
+                            <div className={styles.currentReadInfo}>
+                                <h3 className={styles.currentReadBookTitle}>{currentReadBook.title}</h3>
+                                <p className={styles.currentReadBookAuthor}>by {currentReadBook.author}</p>
+                                {currentReadBook.genre && (
+                                    <div className={styles.currentReadGenres}>
+                                        {currentReadBook.genre.split(', ').map((g, i) => (
+                                            <span key={i} className={styles.bookGenre}>{g}</span>
+                                        ))}
+                                    </div>
+                                )}
+                                {isAdmin && (
+                                    <button onClick={clearCurrentRead} className={styles.clearCurrentReadBtn}>
+                                        Remove Current Read
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </section>
                 )}
 
                 <section className={styles.collectionSection}>
@@ -180,6 +249,11 @@ export default function Home() {
                                      <div className={styles.bookActions}>
                                         <button onClick={() => openEditModal(book)} className={styles.editBtn}>Edit</button>
                                         <button onClick={() => deleteBook(book._id, book.title)} className={styles.deleteBtn}>Delete</button>
+                                        {book._id !== currentReadId ? (
+                                            <button onClick={() => setCurrentRead(book._id)} className={styles.setCurrentReadBtn}>📖 Reading</button>
+                                        ) : (
+                                            <span className={styles.currentReadIndicator}>Currently Reading</span>
+                                        )}
     </div>
                                      )}
     </div>

@@ -6,6 +6,7 @@ export default function Statistics() {
       const [books, setBooks] = useState([])
       const [loading, setLoading] = useState(true)
       const [hoveredDot, setHoveredDot] = useState(null)
+      const [hoveredCumDot, setHoveredCumDot] = useState(null)
       const [hoveredSlice, setHoveredSlice] = useState(null)
 
     useEffect(() => {
@@ -91,11 +92,41 @@ export default function Statistics() {
                   .slice(0, 6)
     }
 
+    // Compute cumulative books read over all time
+    const getCumulativeData = () => {
+              const months = {}
+              books.forEach(book => {
+                  const dateStr = book.dateFinished || book.createdAt
+                  if (dateStr) {
+                      const d = new Date(dateStr)
+                      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+                      months[key] = (months[key] || 0) + 1
+                  }
+              })
+              const sorted = Object.entries(months).sort((a, b) => a[0].localeCompare(b[0]))
+              if (sorted.length === 0) return []
+              // Fill in gaps between first and last month
+              const filled = []
+              const start = new Date(sorted[0][0] + '-01')
+              const end = new Date(sorted[sorted.length - 1][0] + '-01')
+              const cur = new Date(start)
+              let cumulative = 0
+              while (cur <= end) {
+                  const key = cur.getFullYear() + '-' + String(cur.getMonth() + 1).padStart(2, '0')
+                  const found = sorted.find(s => s[0] === key)
+                  cumulative += found ? found[1] : 0
+                  filled.push([key, cumulative])
+                  cur.setMonth(cur.getMonth() + 1)
+              }
+              return filled
+    }
+
     const totalPages = books.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0)
     const avgPagesPerBook = books.length > 0 ? Math.round(totalPages / books.length) : 0
       const streaks = getStreaks()
       const monthlyData = getMonthlyData()
     const genreBreakdown = getGenreBreakdown()
+    const cumulativeData = getCumulativeData()
 
     // SVG chart helpers
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -121,6 +152,31 @@ export default function Statistics() {
         ? `M ${pad.left} ${pad.top + chartH} ` +
           monthlyData.map((_, i) => { const { x, y } = getPoint(i); return `L ${x} ${y}` }).join(' ') +
           ` L ${pad.left + chartW} ${pad.top + chartH} Z`
+        : ''
+
+    // Cumulative chart helpers
+    const cumSvgW = 800
+    const cumSvgH = 250
+    const cumPad = { top: 30, right: 40, bottom: 40, left: 50 }
+    const cumChartW = cumSvgW - cumPad.left - cumPad.right
+    const cumChartH = cumSvgH - cumPad.top - cumPad.bottom
+    const cumMaxVal = cumulativeData.length > 0 ? Math.max(...cumulativeData.map(d => d[1]), 1) : 1
+
+    const getCumPoint = (i) => {
+        const x = cumPad.left + (i * (cumChartW / Math.max(cumulativeData.length - 1, 1)))
+        const y = cumPad.top + cumChartH - (cumulativeData[i][1] / cumMaxVal) * cumChartH
+        return { x, y }
+    }
+
+    const cumLinePath = cumulativeData.map((_, i) => {
+        const { x, y } = getCumPoint(i)
+        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
+
+    const cumAreaPath = cumulativeData.length > 0
+        ? `M ${cumPad.left} ${cumPad.top + cumChartH} ` +
+          cumulativeData.map((_, i) => { const { x, y } = getCumPoint(i); return `L ${x} ${y}` }).join(' ') +
+          ` L ${cumPad.left + cumChartW} ${cumPad.top + cumChartH} Z`
         : ''
 
     // Donut chart helpers
@@ -317,6 +373,67 @@ export default function Statistics() {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+  </div>
+                        )}
+
+                        {/* Cumulative Books Line Chart */}
+                        {cumulativeData.length > 1 && (
+                        <div style={s.chartSection}>
+                            <h2 style={s.sectionTitle}>Total Books Read</h2>
+                            <p style={s.sectionSubtitle}>Cumulative books over time</p>
+                            <div style={s.chartContainer}>
+                                <svg viewBox={`0 0 ${cumSvgW} ${cumSvgH}`} style={s.svg} preserveAspectRatio="xMidYMid meet">
+                                    <defs>
+                                        <linearGradient id="cumAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#5D4E37" stopOpacity="0.3" />
+                                            <stop offset="100%" stopColor="#5D4E37" stopOpacity="0.03" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    {/* Grid lines */}
+                                    {[0, 1, 2, 3, 4].map(i => {
+                                        const y = cumPad.top + (cumChartH / 4) * i
+                                        const val = Math.round(cumMaxVal - (cumMaxVal / 4) * i)
+                                        return (
+                                            <g key={i}>
+                                                <line x1={cumPad.left} y1={y} x2={cumSvgW - cumPad.right} y2={y} stroke="#F4D9C6" strokeWidth="1" strokeDasharray="4" />
+                                                <text x={cumPad.left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="#8B7E66" fontFamily="'Lora', Georgia, serif">{val}</text>
+                                            </g>
+                                        )
+                                    })}
+
+                                    {/* Area */}
+                                    <path d={cumAreaPath} fill="url(#cumAreaGrad)" />
+
+                                    {/* Line */}
+                                    <path d={cumLinePath} fill="none" stroke="#5D4E37" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+                                    {/* Dots and labels */}
+                                    {cumulativeData.map((d, i) => {
+                                        const { x, y } = getCumPoint(i)
+                                        const parts = d[0].split('-')
+                                        const label = monthNames[parseInt(parts[1]) - 1] + " '" + parts[0].slice(2)
+                                        const step = Math.max(1, Math.floor(cumulativeData.length / 10))
+                                        const showLabel = i % step === 0 || i === cumulativeData.length - 1
+                                        const isHovered = hoveredCumDot === i
+                                        return (
+                                            <g key={i}
+                                                onMouseEnter={() => setHoveredCumDot(i)}
+                                                onMouseLeave={() => setHoveredCumDot(null)}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <circle cx={x} cy={y} r={isHovered ? 8 : 4} fill="#5D4E37" stroke="white" strokeWidth="2" style={{ transition: 'r 0.2s ease' }} />
+                                                {isHovered && (
+                                                    <text x={x} y={y - 14} textAnchor="middle" fontSize="13" fontWeight="700" fill="#3E2723" fontFamily="'Playfair Display', Georgia, serif">{d[1]}</text>
+                                                )}
+                                                {showLabel && (
+                                                    <text x={x} y={cumSvgH - 8} textAnchor="middle" fontSize="10" fill="#8B7E66" fontFamily="'Merriweather', Georgia, serif">{label}</text>
+                                                )}
+                                            </g>
+                                        )
+                                    })}
+                                </svg>
                             </div>
   </div>
                         )}

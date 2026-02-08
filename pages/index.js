@@ -167,6 +167,9 @@ export default function Home() {
                     <Link href="/quotes" className={styles.navBtn}>
                         Favourite Quotes
                     </Link>
+                    <Link href="/to-read" className={styles.navBtn}>
+                        Recommend Me
+                    </Link>
                 </div>
 
                 {isAdmin && (

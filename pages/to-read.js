@@ -96,13 +96,13 @@ export default function ToRead() {
     return (
         <div style={s.container}>
             <Head>
-                <title>To Read - Humblespace</title>
+                <title>Reading List - Humblespace</title>
                 <meta name="description" content="Books on my reading radar" />
             </Head>
             <main style={s.main}>
                 <Link href="/" style={s.backBtn}>Back to Library</Link>
-                <h1 style={s.title}>To Read</h1>
-                <p style={s.subtitle}>Books on my radar</p>
+                <h1 style={s.title}>Reading List</h1>
+                <p style={s.subtitle}>My next reads</p>
 
                 {message && (
                     <p style={{

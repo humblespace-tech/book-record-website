@@ -23,9 +23,19 @@ export default function AddBook() {
     const [books, setBooks] = useState([])
     const [showBooks, setShowBooks] = useState(false)
 
+  const GENRE_OPTIONS = ['Fiction', 'Non-Fiction', 'Science', 'History', 'Fantasy', 'Mystery', 'Philosophy', 'Business', 'Self-help', 'Life', 'Marketing', 'Other']
+
   const handleChange = (e) => {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const toggleGenre = (g) => {
+        setForm(prev => {
+            const current = prev.genre ? prev.genre.split(', ').filter(Boolean) : []
+            const updated = current.includes(g) ? current.filter(x => x !== g) : [...current, g]
+            return { ...prev, genre: updated.join(', ') }
+        })
   }
 
   // Auto-fetch cover when title or author changes
@@ -149,19 +159,19 @@ export default function AddBook() {
               <label style={styles.label}>ISBN</label>
               <input name="isbn" value={form.isbn} onChange={handleChange} style={styles.input} placeholder="ISBN number" />
   </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Genre</label>
-              <select name="genre" value={form.genre} onChange={handleChange} style={styles.input}>
-                <option value="">Select genre</option>
-                <option value="Fiction">Fiction</option>
-                <option value="Non-Fiction">Non-Fiction</option>
-                <option value="Science">Science</option>
-                <option value="History">History</option>
-                <option value="Fantasy">Fantasy</option>
-                <option value="Mystery">Mystery</option>
-                <option value="Other">Other</option>
-  </select>
   </div>
+          <div style={styles.field}>
+            <label style={styles.label}>Genre</label>
+            <div style={styles.genrePills}>
+              {GENRE_OPTIONS.map(g => {
+                const selected = form.genre ? form.genre.split(', ').includes(g) : false
+                return (
+                  <button key={g} type="button" onClick={() => toggleGenre(g)} style={selected ? styles.genrePillSelected : styles.genrePill}>
+                    {g}
+                  </button>
+                )
+              })}
+            </div>
   </div>
           <div style={styles.row}>
             <div style={styles.field}>
@@ -249,7 +259,7 @@ export default function AddBook() {
                   <h3 style={styles.bookTitle}>{book.title}</h3>
                   <p style={styles.bookAuthor}>by {book.author}</p>
                   <div style={styles.badgeRow}>
-                {book.genre && <span style={styles.badge}>{book.genre}</span>}
+                {book.genre && book.genre.split(', ').map((g, i) => <span key={i} style={styles.badge}>{g}</span>)}
 {book.rating > 0 && <span style={styles.rating}>{'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}</span>}
 {book.pages > 0 && <span style={styles.badge}>{book.pages} pages</span>}
   </div>
@@ -484,6 +494,35 @@ const styles = {
         padding: '2rem',
         fontFamily: "'Lora', Georgia, serif",
         fontStyle: 'italic',
+    },
+    genrePills: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+    },
+    genrePill: {
+        padding: '0.4rem 0.9rem',
+        borderRadius: '20px',
+        border: '2px solid #F4D9C6',
+        background: 'rgba(255, 253, 247, 0.8)',
+        color: '#8B7E66',
+        fontSize: '0.82rem',
+        fontFamily: "'Merriweather', Georgia, serif",
+        fontWeight: '400',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+    },
+    genrePillSelected: {
+        padding: '0.4rem 0.9rem',
+        borderRadius: '20px',
+        border: '2px solid #D4774E',
+        background: 'rgba(212, 119, 78, 0.15)',
+        color: '#D4774E',
+        fontSize: '0.82rem',
+        fontFamily: "'Merriweather', Georgia, serif",
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
     },
     fileInput: {
         width: '100%',

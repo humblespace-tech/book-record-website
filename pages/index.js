@@ -62,9 +62,19 @@ export default function Home() {
                 setEditMessage('')
     }
 
+    const GENRE_OPTIONS = ['Fiction', 'Non-Fiction', 'Science', 'History', 'Fantasy', 'Mystery', 'Philosophy', 'Business', 'Self-help', 'Life', 'Marketing', 'Other']
+
     const handleEditChange = (e) => {
                 const { name, value } = e.target
                 setEditForm(prev => ({ ...prev, [name]: value }))
+    }
+
+    const toggleEditGenre = (g) => {
+                setEditForm(prev => {
+                    const current = prev.genre ? prev.genre.split(', ').filter(Boolean) : []
+                    const updated = current.includes(g) ? current.filter(x => x !== g) : [...current, g]
+                    return { ...prev, genre: updated.join(', ') }
+                })
     }
 
     const handleEditSubmit = async (e) => {
@@ -152,7 +162,7 @@ export default function Home() {
                                     <div className={styles.bookCardContent}>
                                     <h3 className={styles.bookTitle}>{book.title}</h3>
                                     <p className={styles.bookAuthor}>by {book.author}</p>
-{book.genre && <span className={styles.bookGenre}>{book.genre}</span>}
+{book.genre && book.genre.split(', ').map((g, i) => <span key={i} className={styles.bookGenre}>{g}</span>)}
  {book.rating > 0 && (
                                              <p className={styles.bookRating}>
  {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}
@@ -209,19 +219,19 @@ export default function Home() {
                                     <label className={styles.editLabel}>ISBN</label>
                                     <input name="isbn" value={editForm.isbn} onChange={handleEditChange} className={styles.editInput} />
                             </div>
-                                <div className={styles.editField}>
-                                    <label className={styles.editLabel}>Genre</label>
-                                    <select name="genre" value={editForm.genre} onChange={handleEditChange} className={styles.editInput}>
-                                        <option value="">Select genre</option>
-                                        <option value="Fiction">Fiction</option>
-                                        <option value="Non-Fiction">Non-Fiction</option>
-                                        <option value="Science">Science</option>
-                                        <option value="History">History</option>
-                                        <option value="Fantasy">Fantasy</option>
-                                        <option value="Mystery">Mystery</option>
-                                        <option value="Other">Other</option>
-                            </select>
                             </div>
+                            <div className={styles.editField}>
+                                <label className={styles.editLabel}>Genre</label>
+                                <div className={styles.editGenrePills}>
+                                    {GENRE_OPTIONS.map(g => {
+                                        const selected = editForm.genre ? editForm.genre.split(', ').includes(g) : false
+                                        return (
+                                            <button key={g} type="button" onClick={() => toggleEditGenre(g)} className={selected ? styles.editGenrePillSelected : styles.editGenrePill}>
+                                                {g}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
                             </div>
                             <div className={styles.editRow}>
                                 <div className={styles.editField}>

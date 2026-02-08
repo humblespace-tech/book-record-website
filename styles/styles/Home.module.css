@@ -327,6 +327,7 @@
     border-radius: 20px;
     font-size: 0.78rem;
     margin-bottom: 0.5rem;
+    margin-right: 0.3rem;
     font-weight: 600;
     font-family: 'Merriweather', Georgia, serif;
     letter-spacing: 0.3px;
@@ -549,6 +550,43 @@
     outline: none;
     border-color: #D4774E;
     box-shadow: 0 0 0 3px rgba(212, 119, 78, 0.15);
+}
+
+.editGenrePills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.editGenrePill {
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    border: 2px solid #F4D9C6;
+    background: rgba(255, 253, 247, 0.8);
+    color: #8B7E66;
+    font-size: 0.78rem;
+    font-family: 'Merriweather', Georgia, serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.editGenrePill:hover {
+    border-color: #D4774E;
+    color: #D4774E;
+}
+
+.editGenrePillSelected {
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    border: 2px solid #D4774E;
+    background: rgba(212, 119, 78, 0.15);
+    color: #D4774E;
+    font-size: 0.78rem;
+    font-family: 'Merriweather', Georgia, serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .editFormButtons {

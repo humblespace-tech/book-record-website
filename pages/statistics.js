@@ -86,8 +86,11 @@ export default function Statistics() {
     const getGenreBreakdown = () => {
               const genres = {}
               books.forEach(book => {
-                  const g = book.genre || 'Uncategorized'
-                  genres[g] = (genres[g] || 0) + 1
+                  const bookGenres = book.genre ? book.genre.split(', ').filter(Boolean) : ['Uncategorized']
+                  if (bookGenres.length === 0) bookGenres.push('Uncategorized')
+                  bookGenres.forEach(g => {
+                      genres[g] = (genres[g] || 0) + 1
+                  })
               })
               return Object.entries(genres)
                   .sort((a, b) => b[1] - a[1])

@@ -20,7 +20,7 @@ export default function Search() {
                   .catch(() => setLoading(false))
     }, [])
 
-    const genres = [...new Set(books.map(b => b.genre).filter(Boolean))].sort()
+    const genres = [...new Set(books.flatMap(b => b.genre ? b.genre.split(', ').filter(Boolean) : []))].sort()
 
     const filtered = books
           .filter(book => {
@@ -30,7 +30,7 @@ export default function Search() {
                                           book.author.toLowerCase().includes(q) ||
                                           (book.isbn && book.isbn.toLowerCase().includes(q)) ||
                                           (book.notes && book.notes.toLowerCase().includes(q))
-                        const matchesGenre = !genre || book.genre === genre
+                        const matchesGenre = !genre || (book.genre && book.genre.split(', ').includes(genre))
                         const matchesRating = !ratingFilter || book.rating >= parseInt(ratingFilter)
                         return matchesQuery && matchesGenre && matchesRating
           })
@@ -128,7 +128,7 @@ export default function Search() {
                                         <h3 style={s.bookTitle}>{book.title}</h3>
                                          <p style={s.bookAuthor}>by {book.author}</p>
                                          <div style={s.bookMeta}>
- {book.genre && <span style={s.badge}>{book.genre}</span>}
+ {book.genre && book.genre.split(', ').map((g, i) => <span key={i} style={s.badge}>{g}</span>)}
  {book.pages > 0 && <span style={s.badge}>{book.pages} pages</span>}
  {book.rating > 0 && (
                                                    <span style={s.ratingText}>

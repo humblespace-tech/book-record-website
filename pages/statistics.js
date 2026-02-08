@@ -168,15 +168,37 @@ export default function Statistics() {
         return { x, y }
     }
 
-    const cumLinePath = cumulativeData.map((_, i) => {
-        const { x, y } = getCumPoint(i)
-        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
-    }).join(' ')
+    // Smooth cubic bezier curve for cumulative chart
+    const getCumSmoothPath = () => {
+        if (cumulativeData.length === 0) return ''
+        const points = cumulativeData.map((_, i) => getCumPoint(i))
+        let path = `M ${points[0].x} ${points[0].y}`
+        for (let i = 1; i < points.length; i++) {
+            const prev = points[i - 1]
+            const cur = points[i]
+            const cpx = (prev.x + cur.x) / 2
+            path += ` C ${cpx} ${prev.y}, ${cpx} ${cur.y}, ${cur.x} ${cur.y}`
+        }
+        return path
+    }
+
+    const cumLinePath = getCumSmoothPath()
 
     const cumAreaPath = cumulativeData.length > 0
         ? `M ${cumPad.left} ${cumPad.top + cumChartH} ` +
-          cumulativeData.map((_, i) => { const { x, y } = getCumPoint(i); return `L ${x} ${y}` }).join(' ') +
-          ` L ${cumPad.left + cumChartW} ${cumPad.top + cumChartH} Z`
+          `L ${getCumPoint(0).x} ${getCumPoint(0).y} ` +
+          (() => {
+              const points = cumulativeData.map((_, i) => getCumPoint(i))
+              let p = ''
+              for (let i = 1; i < points.length; i++) {
+                  const prev = points[i - 1]
+                  const cur = points[i]
+                  const cpx = (prev.x + cur.x) / 2
+                  p += `C ${cpx} ${prev.y}, ${cpx} ${cur.y}, ${cur.x} ${cur.y} `
+              }
+              return p
+          })() +
+          `L ${cumPad.left + cumChartW} ${cumPad.top + cumChartH} Z`
         : ''
 
     // Donut chart helpers
@@ -409,29 +431,16 @@ export default function Statistics() {
                                     {/* Line */}
                                     <path d={cumLinePath} fill="none" stroke="#5D4E37" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
-                                    {/* Dots and labels */}
+                                    {/* X-axis labels */}
                                     {cumulativeData.map((d, i) => {
-                                        const { x, y } = getCumPoint(i)
+                                        const { x } = getCumPoint(i)
                                         const parts = d[0].split('-')
                                         const label = monthNames[parseInt(parts[1]) - 1] + " '" + parts[0].slice(2)
                                         const step = Math.max(1, Math.floor(cumulativeData.length / 10))
                                         const showLabel = i % step === 0 || i === cumulativeData.length - 1
-                                        const isHovered = hoveredCumDot === i
-                                        return (
-                                            <g key={i}
-                                                onMouseEnter={() => setHoveredCumDot(i)}
-                                                onMouseLeave={() => setHoveredCumDot(null)}
-                                                style={{ cursor: 'pointer' }}
-                                            >
-                                                <circle cx={x} cy={y} r={isHovered ? 8 : 4} fill="#5D4E37" stroke="white" strokeWidth="2" style={{ transition: 'r 0.2s ease' }} />
-                                                {isHovered && (
-                                                    <text x={x} y={y - 14} textAnchor="middle" fontSize="13" fontWeight="700" fill="#3E2723" fontFamily="'Playfair Display', Georgia, serif">{d[1]}</text>
-                                                )}
-                                                {showLabel && (
-                                                    <text x={x} y={cumSvgH - 8} textAnchor="middle" fontSize="10" fill="#8B7E66" fontFamily="'Merriweather', Georgia, serif">{label}</text>
-                                                )}
-                                            </g>
-                                        )
+                                        return showLabel ? (
+                                            <text key={i} x={x} y={cumSvgH - 8} textAnchor="middle" fontSize="10" fill="#8B7E66" fontFamily="'Merriweather', Georgia, serif">{label}</text>
+                                        ) : null
                                     })}
                                 </svg>
                             </div>
@@ -441,7 +450,7 @@ export default function Statistics() {
                         {/* Monthly Activity Grid */}
                         <div style={s.chartSection}>
                             <h2 style={s.sectionTitle}>Monthly Activity</h2>
-                            <p style={s.sectionSubtitle}>Your reading heatmap</p>
+                            <p style={s.sectionSubtitle}>Reading heatmap (12-months)</p>
                             <div style={s.streakGrid}>
 {monthlyData.map(([month, count]) => {
                                       const parts = month.split('-')

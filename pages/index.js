@@ -180,8 +180,8 @@ export default function Home() {
                     <Link href="/to-read" className={styles.navBtn}>
                         Reading List
                     </Link>
-                    <button onClick={handleSurprise} className={styles.navBtn}>
-                        Surprise Me!
+                    <button onClick={handleSurprise} className={styles.surpriseBtn}>
+                        🎲 Surprise Me!
                     </button>
                 </div>
 

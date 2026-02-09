@@ -153,6 +153,42 @@
     box-shadow: 0 5px 20px rgba(212, 119, 78, 0.3);
 }
 
+.surpriseBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.9rem 2rem;
+    background: linear-gradient(135deg, #D4774E 0%, #C9A961 100%);
+    color: #FFFDF7;
+    border: 2px solid #D4774E;
+    border-radius: 30px;
+    text-decoration: none;
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 3px 15px rgba(212, 119, 78, 0.25);
+    position: relative;
+    overflow: hidden;
+    animation: gentlePulse 3s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { box-shadow: 0 3px 15px rgba(212, 119, 78, 0.25); }
+    50% { box-shadow: 0 5px 25px rgba(212, 119, 78, 0.45); }
+}
+
+.surpriseBtn:hover {
+    background: linear-gradient(135deg, #c4673e 0%, #b8963a 100%);
+    border-color: #c4673e;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 30px rgba(212, 119, 78, 0.4);
+    animation: none;
+}
+
 /* ===== ADD BOOK BUTTON ===== */
 
 .addBookBtn {

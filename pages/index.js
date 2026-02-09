@@ -171,7 +171,7 @@ export default function Home() {
                         Favourite Quotes
                     </Link>
                     <Link href="/to-read" className={styles.navBtn}>
-                        Recommend Me!
+                        Reading List
                     </Link>
                 </div>
 

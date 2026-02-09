@@ -14,6 +14,13 @@ export default function Home() {
         })
         const [editMessage, setEditMessage] = useState('')
         const [currentReadId, setCurrentReadId] = useState(null)
+        const [surpriseBook, setSurpriseBook] = useState(null)
+
+    const handleSurprise = () => {
+        if (books.length === 0) return
+        const randomIndex = Math.floor(Math.random() * books.length)
+        setSurpriseBook(books[randomIndex])
+    }
 
     const fetchBooks = () => {
                 fetch('/api/books')
@@ -173,6 +180,9 @@ export default function Home() {
                     <Link href="/to-read" className={styles.navBtn}>
                         Reading List
                     </Link>
+                    <button onClick={handleSurprise} className={styles.navBtn}>
+                        Surprise Me!
+                    </button>
                 </div>
 
                 {isAdmin && (
@@ -382,6 +392,42 @@ export default function Home() {
                             </form>
                             </div>
                             </div>
+            )}
+
+            {surpriseBook && (
+                <div className={styles.surpriseOverlay} onClick={() => setSurpriseBook(null)}>
+                    <div className={styles.surpriseCard} onClick={e => e.stopPropagation()}>
+                        <button className={styles.surpriseClose} onClick={() => setSurpriseBook(null)}>&times;</button>
+                        <h3 className={styles.surpriseHeading}>Your next read could be...</h3>
+                        <div className={styles.surpriseContent}>
+                            {surpriseBook.coverUrl ? (
+                                <img src={surpriseBook.coverUrl} alt={surpriseBook.title} className={styles.surpriseCover} />
+                            ) : (
+                                <div className={styles.surpriseCoverPlaceholder}>📖</div>
+                            )}
+                            <div className={styles.surpriseInfo}>
+                                <h2 className={styles.surpriseTitle}>{surpriseBook.title}</h2>
+                                <p className={styles.surpriseAuthor}>by {surpriseBook.author}</p>
+                                {surpriseBook.genre && (
+                                    <div className={styles.surpriseGenres}>
+                                        {surpriseBook.genre.split(', ').map((g, i) => (
+                                            <span key={i} className={styles.surpriseGenreBadge}>{g}</span>
+                                        ))}
+                                    </div>
+                                )}
+                                {surpriseBook.rating > 0 && (
+                                    <p className={styles.surpriseRating}>
+                                        {'★'.repeat(surpriseBook.rating)}{'☆'.repeat(5 - surpriseBook.rating)}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <div className={styles.surpriseActions}>
+                            <button className={styles.surpriseTryAgain} onClick={handleSurprise}>Try Again</button>
+                            <button className={styles.surpriseDismiss} onClick={() => setSurpriseBook(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <footer className={styles.footer}>
